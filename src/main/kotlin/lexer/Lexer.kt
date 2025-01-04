@@ -180,5 +180,5 @@ class Lexer(
         tokens.add(Token(type, text, literal, line))
     }
 
-    fun hasNext(): Boolean = current < source.length
+    private fun hasNext(): Boolean = current < source.length
 }
