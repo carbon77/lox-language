@@ -38,6 +38,7 @@ class Lox {
             print("> ")
             val line = reader.readLine() ?: break
             runCode(line)
+            hadError = false
         }
     }
 
