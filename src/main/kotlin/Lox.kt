@@ -1,9 +1,10 @@
 package org.zakat
 
+import org.zakat.interpreter.Interpreter
 import org.zakat.lexer.Lexer
 import org.zakat.lexer.Token
 import org.zakat.lexer.TokenType
-import org.zakat.parser.AstPrinter
+import org.zakat.org.zakat.interpreter.RuntimeError
 import org.zakat.parser.Parser
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -15,7 +16,9 @@ import kotlin.system.exitProcess
 class Lox {
 
     companion object {
-        var hadError = false
+        private val interpreter = Interpreter()
+        private var hadRuntimeError = false
+        private var hadError = false
 
         fun error(line: Int, message: String) {
             report(line, "", message)
@@ -33,6 +36,11 @@ class Lox {
             System.err.println("[line $line] Error $where: $message")
             hadError = true
         }
+
+        fun runtimeError(error: RuntimeError) {
+            println("${error.message}\n[line ${error.token.line}]")
+            hadRuntimeError = true
+        }
     }
 
     fun runFile(path: String) {
@@ -40,6 +48,7 @@ class Lox {
         runCode(String(bytes, Charset.defaultCharset()))
 
         if (hadError) exitProcess(65)
+        if (hadRuntimeError) exitProcess(70)
     }
 
     fun runPrompt() {
@@ -63,7 +72,7 @@ class Lox {
 
         if (expression == null || hadError) return
 
-        println(AstPrinter().print(expression))
+        interpreter.interpret(expression)
     }
 }
 

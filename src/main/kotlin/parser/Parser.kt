@@ -17,7 +17,24 @@ class Parser(
         }
     }
 
-    private fun expression() = equality()
+    private fun expression(): Expression {
+        if (check(
+                TokenType.EQUAL,
+                TokenType.EQUAL_EQUAL,
+                TokenType.BANG_EQUAL,
+                TokenType.GREATER,
+                TokenType.GREATER_EQUAL,
+                TokenType.LESS,
+                TokenType.LESS_EQUAL,
+                TokenType.PLUS,
+                TokenType.STAR,
+                TokenType.SLASH
+            )
+        ) {
+            throw error(peek(), "Unexpected binary operator")
+        }
+        return equality()
+    }
 
     // Grammar rule for !=, ==
     private fun equality(): Expression {
@@ -121,7 +138,16 @@ class Parser(
         return false
     }
 
-    private fun check(type: TokenType) = if (!hasNext()) false else peek().type == type
+    private fun check(vararg types: TokenType): Boolean {
+        if (!hasNext()) return false
+
+        for (type in types) {
+            if (peek().type == type) {
+                return true
+            }
+        }
+        return false
+    }
 
     private fun advance(): Token {
         if (hasNext()) current++
