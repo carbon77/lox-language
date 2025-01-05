@@ -33,7 +33,12 @@ class Interpreter : Expression.Visitor<Any?> {
 
         return when (expr.operator.type) {
             TokenType.MINUS -> left as Double - right as Double
-            TokenType.SLASH -> left as Double / right as Double
+            TokenType.SLASH -> {
+                if (right is Double && right == 0.0)
+                    throw RuntimeError(expr.operator, "Division by zero")
+                left as Double / right as Double
+            }
+
             TokenType.STAR -> left as Double * right as Double
             TokenType.GREATER -> left as Double > right as Double
             TokenType.GREATER_EQUAL -> left as Double >= right as Double
