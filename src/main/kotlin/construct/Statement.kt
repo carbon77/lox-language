@@ -29,6 +29,12 @@ interface Statement {
         }
     }
 
+    data class While(val condition: Expr, val body: Statement): Statement {
+        override fun accept(visitor: StatementVisitor) {
+            return visitor.visitWhileStmt(this)
+        }
+    }
+
     data class If(
         val condition: Expr,
         val thenBranch: Statement,

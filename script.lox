@@ -16,5 +16,13 @@ if (a >= 3 and (false or b / 2 == 2)) {
 }
 print msg;
 
+print "while loop:";
+var i = 0;
+while (i < 5) {
+    print i;
+    i = i + 1;
+}
+print "end while loop";
+
 var name = "world";
 print "Hello" + (" " + name);

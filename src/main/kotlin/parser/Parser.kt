@@ -35,8 +35,18 @@ class Parser(
             match(TokenType.PRINT) -> printStatement()
             match(TokenType.LEFT_BRACE) -> Statement.Block(block())
             match(TokenType.IF) -> ifStatement()
+            match(TokenType.WHILE) -> whileStatement()
             else -> expressionStatement()
         }
+    }
+
+    private fun whileStatement(): Statement {
+        consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.")
+        val condition = expression()
+        consume(TokenType.RIGHT_PAREN, "Expect ')' after while condition.")
+        val body = statement()
+
+        return Statement.While(condition, body)
     }
 
     private fun ifStatement(): Statement {

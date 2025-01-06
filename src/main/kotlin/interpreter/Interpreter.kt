@@ -100,6 +100,12 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor {
         return value
     }
 
+    override fun visitWhileStmt(stmt: Statement.While) {
+        while (isTruthy(evaluate(stmt.condition))) {
+            execute(stmt.body)
+        }
+    }
+
     override fun visitLogicalExpression(expr: Expr.Logical): Any? {
         val left = evaluate(expr.left)
 
