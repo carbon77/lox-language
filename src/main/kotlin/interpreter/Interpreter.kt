@@ -10,7 +10,7 @@ import org.zakat.lexer.Token
 import org.zakat.lexer.TokenType
 
 class Interpreter : ExpressionVisitor<Any?>, StatementVisitor {
-    private val environment = Environment()
+    private var environment = Environment()
 
     fun interpret(statements: List<Statement?>) {
         try {
@@ -138,6 +138,22 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor {
         return value.toString()
     }
 
+    private fun executeBlock(
+        statements: List<Statement?>,
+        environment: Environment,
+    ) {
+        val previous = this.environment
+        try {
+            this.environment = environment
+
+            for (statement in statements) {
+                execute(statement)
+            }
+        } finally {
+            this.environment = previous
+        }
+    }
+
     override fun visitExpressionStmt(stmt: Statement.Expression) {
         evaluate(stmt.expr)
     }
@@ -154,5 +170,9 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor {
         }
 
         environment[stmt.name.lexeme] = value
+    }
+
+    override fun visitBlockStmt(stmt: Statement.Block) {
+        executeBlock(stmt.statements, Environment(environment))
     }
 }

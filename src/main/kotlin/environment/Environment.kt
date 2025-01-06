@@ -3,7 +3,9 @@ package org.zakat.environment
 import org.zakat.interpreter.RuntimeError
 import org.zakat.lexer.Token
 
-class Environment {
+class Environment(private val enclosing: Environment?) {
+    constructor() : this(null)
+
     private val values = mutableMapOf<String, Any?>()
 
     operator fun set(name: String, value: Any?) {
@@ -15,6 +17,12 @@ class Environment {
             values[name.lexeme] = value
             return
         }
+
+        if (enclosing != null) {
+            enclosing[name] = value
+            return
+        }
+
         throw RuntimeError(name, "Undefined variable '${name.lexeme}'.")
     }
 
@@ -22,6 +30,8 @@ class Environment {
         if (name.lexeme in values) {
             return values[name.lexeme]
         }
+
+        if (enclosing != null) return enclosing[name]
 
         throw RuntimeError(name, "Undefined variable '${name.lexeme}'.")
     }

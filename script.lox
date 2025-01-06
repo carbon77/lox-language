@@ -1,8 +1,12 @@
 var a = 3;
 var b = 4;
 
+{
+    var a = a + 1;
+    print a + b;
+}
+
 print a * b;
-print true;
 
 var name = "world";
 print "Hello" + (" " + name);
