@@ -1,9 +1,9 @@
 package org.zakat.parser
 
 import org.zakat.construct.Expr
-import org.zakat.construct.Visitor
+import org.zakat.construct.ExpressionVisitor
 
-class AstPrinter : Visitor<String> {
+class AstPrinter : ExpressionVisitor<String> {
     fun print(expr: Expr): String {
         return expr.accept(this)
     }

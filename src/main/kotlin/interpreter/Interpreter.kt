@@ -2,11 +2,11 @@ package org.zakat.interpreter
 
 import org.zakat.Lox
 import org.zakat.construct.Expr
-import org.zakat.construct.Visitor
+import org.zakat.construct.ExpressionVisitor
 import org.zakat.lexer.Token
 import org.zakat.lexer.TokenType
 
-class Interpreter : Visitor<Any?> {
+class Interpreter : ExpressionVisitor<Any?> {
 
     fun interpret(expr: Expr) {
         try {
