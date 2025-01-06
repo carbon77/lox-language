@@ -94,6 +94,12 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor {
         return environment[expr.name]
     }
 
+    override fun visitAssignExpression(expr: Expr.Assign): Any? {
+        val value = evaluate(expr.value)
+        environment[expr.name] = value
+        return value
+    }
+
     private fun evaluate(expr: Expr): Any? {
         return expr.accept(this)
     }

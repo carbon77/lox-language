@@ -75,7 +75,24 @@ class Parser(
         ) {
             throw error(peek(), "Unexpected binary operator")
         }
-        return equality()
+        return assignment()
+    }
+
+    private fun assignment(): Expr {
+        val expr = equality()
+
+        if (match(TokenType.EQUAL)) {
+            val equals = previous()
+            val value = assignment()
+
+            if (expr is Expr.Variable) {
+                return Expr.Assign(expr.name, value)
+            }
+
+            error(equals, "Invalid assignment target.")
+        }
+
+        return expr
     }
 
     // Grammar rule for !=, ==

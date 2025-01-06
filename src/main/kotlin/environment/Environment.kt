@@ -10,6 +10,14 @@ class Environment {
         values[name] = value
     }
 
+    operator fun set(name: Token, value: Any?) {
+        if (name.lexeme in values) {
+            values[name.lexeme] = value
+            return
+        }
+        throw RuntimeError(name, "Undefined variable '${name.lexeme}'.")
+    }
+
     operator fun get(name: Token): Any? {
         if (name.lexeme in values) {
             return values[name.lexeme]

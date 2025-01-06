@@ -5,6 +5,12 @@ import org.zakat.lexer.Token
 interface Expr {
     fun <T> accept(visitor: ExpressionVisitor<T>): T
 
+    data class Assign(val name: Token, val value: Expr) : Expr {
+        override fun <T> accept(visitor: ExpressionVisitor<T>): T {
+            return visitor.visitAssignExpression(this)
+        }
+    }
+
     data class Binary(val left: Expr, val operator: Token, val right: Expr) : Expr {
         override fun <T> accept(visitor: ExpressionVisitor<T>): T {
             return visitor.visitBinaryExpression(this)
