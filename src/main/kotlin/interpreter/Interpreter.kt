@@ -1,11 +1,12 @@
 package org.zakat.interpreter
 
 import org.zakat.Lox
+import org.zakat.construct.Expression
+import org.zakat.construct.Visitor
 import org.zakat.lexer.Token
 import org.zakat.lexer.TokenType
-import org.zakat.expression.Expression
 
-class Interpreter : Expression.Visitor<Any?> {
+class Interpreter : Visitor<Any?> {
 
     fun interpret(expression: Expression) {
         try {

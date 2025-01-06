@@ -1,7 +1,7 @@
 package org.zakat.parser
 
 import org.zakat.Lox
-import org.zakat.expression.Expression
+import org.zakat.construct.Expression
 import org.zakat.lexer.Token
 import org.zakat.lexer.TokenType
 

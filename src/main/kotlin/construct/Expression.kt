@@ -1,16 +1,9 @@
-package org.zakat.expression
+package org.zakat.construct
 
 import org.zakat.lexer.Token
 
 interface Expression {
     fun <T> accept(visitor: Visitor<T>): T
-
-    interface Visitor<T> {
-        fun visitBinaryExpression(expr: Binary): T
-        fun visitGroupingExpression(expr: Grouping): T
-        fun visitLiteralExpression(expr: Literal): T
-        fun visitUnaryExpression(expr: Unary): T
-    }
 
     data class Binary(val left: Expression, val operator: Token, val right: Expression) : Expression {
         override fun <T> accept(visitor: Visitor<T>): T {
