@@ -36,8 +36,51 @@ class Parser(
             match(TokenType.LEFT_BRACE) -> Statement.Block(block())
             match(TokenType.IF) -> ifStatement()
             match(TokenType.WHILE) -> whileStatement()
+            match(TokenType.FOR) -> forStatement()
             else -> expressionStatement()
         }
+    }
+
+    // We don't create class for 'for loop'.
+    // We use 'desugaring' to parse 'for loop' to 'while loop'
+    private fun forStatement(): Statement {
+        consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.")
+        val initializer: Statement? = when {
+            match(TokenType.SEMICOLON) -> null
+            match(TokenType.VAR) -> varDeclaration()
+            else -> expressionStatement()
+        }
+
+        var condition = if (check(TokenType.SEMICOLON)) null else expression()
+        consume(TokenType.SEMICOLON, "Expect ';' after loop condition.")
+
+        val increment = if (check(TokenType.RIGHT_PAREN)) null else expression()
+        consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.")
+
+        var body = statement()
+
+        if (increment != null) {
+            body = Statement.Block(
+                listOf(
+                    body,
+                    Statement.Expression(increment),
+                )
+            )
+        }
+
+        if (condition == null) condition = Expr.Literal(true)
+        body = Statement.While(condition, body)
+
+        if (initializer != null) {
+            body = Statement.Block(
+                listOf(
+                    initializer,
+                    body,
+                )
+            )
+        }
+
+        return body
     }
 
     private fun whileStatement(): Statement {

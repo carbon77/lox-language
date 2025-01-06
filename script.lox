@@ -1,28 +1,10 @@
-var a = 3;
-var b = 4;
+print "Fibonacci numbers";
 
-{
-    var a = a + 1;
-    print a + b;
+var a = 0;
+var temp;
+
+for (var b = 1; a < 10000; b = temp + b) {
+    print a;
+    temp = a;
+    a = b;
 }
-
-print a * b;
-
-var msg;
-if (a >= 3 and (false or b / 2 == 2)) {
-    msg = "if branch";
-} else {
-    msg = "else branch";
-}
-print msg;
-
-print "while loop:";
-var i = 0;
-while (i < 5) {
-    print i;
-    i = i + 1;
-}
-print "end while loop";
-
-var name = "world";
-print "Hello" + (" " + name);
