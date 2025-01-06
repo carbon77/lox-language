@@ -28,4 +28,10 @@ interface Expr {
             return visitor.visitUnaryExpression(this)
         }
     }
+
+    data class Variable(val name: Token) : Expr {
+        override fun <T> accept(visitor: ExpressionVisitor<T>): T {
+            return visitor.visitVariableExpression(this)
+        }
+    }
 }

@@ -5,12 +5,14 @@ import org.zakat.construct.Expr
 import org.zakat.construct.ExpressionVisitor
 import org.zakat.construct.Statement
 import org.zakat.construct.StatementVisitor
+import org.zakat.environment.Environment
 import org.zakat.lexer.Token
 import org.zakat.lexer.TokenType
 
-class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Any?> {
+class Interpreter : ExpressionVisitor<Any?>, StatementVisitor {
+    private val environment = Environment()
 
-    fun interpret(statements: List<Statement>) {
+    fun interpret(statements: List<Statement?>) {
         try {
             for (statement in statements) {
                 execute(statement)
@@ -20,8 +22,8 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Any?> {
         }
     }
 
-    private fun execute(statement: Statement) {
-        statement.accept(this)
+    private fun execute(statement: Statement?) {
+        statement?.accept(this)
     }
 
     override fun visitBinaryExpression(expr: Expr.Binary): Any? {
@@ -88,6 +90,10 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Any?> {
         }
     }
 
+    override fun visitVariableExpression(expr: Expr.Variable): Any? {
+        return environment[expr.name]
+    }
+
     private fun evaluate(expr: Expr): Any? {
         return expr.accept(this)
     }
@@ -133,5 +139,14 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Any?> {
     override fun visitPrintStmt(stmt: Statement.Print) {
         val value = evaluate(stmt.expr)
         println(stringify(value))
+    }
+
+    override fun visitVarStmt(stmt: Statement.Var) {
+        var value: Any? = null
+        if (stmt.initializer != null) {
+            value = evaluate(stmt.initializer)
+        }
+
+        environment[stmt.name.lexeme] = value
     }
 }

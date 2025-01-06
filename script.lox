@@ -1,4 +1,8 @@
-4 + 3 - (4 * 1);
+var a = 3;
+var b = 4;
+
+print a * b;
 print true;
 
-print "Hello" + (" " + "world");
+var name = "world";
+print "Hello" + (" " + name);

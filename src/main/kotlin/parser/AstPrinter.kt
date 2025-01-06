@@ -35,4 +35,8 @@ class AstPrinter : ExpressionVisitor<String> {
     override fun visitUnaryExpression(expr: Expr.Unary): String {
         return parenthesize(expr.operator.lexeme, expr.right)
     }
+
+    override fun visitVariableExpression(expr: Expr.Variable): String {
+        return expr.name.lexeme
+    }
 }
