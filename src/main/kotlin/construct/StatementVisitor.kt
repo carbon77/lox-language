@@ -1,6 +1,6 @@
 package org.zakat.construct
 
 interface StatementVisitor<T> {
-    fun visitExpressionStmt(expr: Statement.Expression): T
-    fun visitPrintStmt(expr: Statement.Print): T
+    fun visitExpressionStmt(stmt: Statement.Expression): T
+    fun visitPrintStmt(stmt: Statement.Print): T
 }

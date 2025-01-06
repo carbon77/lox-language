@@ -1,10 +1,10 @@
 package org.zakat
 
 import org.zakat.interpreter.Interpreter
+import org.zakat.interpreter.RuntimeError
 import org.zakat.lexer.Lexer
 import org.zakat.lexer.Token
 import org.zakat.lexer.TokenType
-import org.zakat.interpreter.RuntimeError
 import org.zakat.parser.Parser
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -68,11 +68,11 @@ class Lox {
         val tokens: List<Token> = scanner.scanTokens()
 
         val parser = Parser(tokens)
-        val expression = parser.parse()
+        val statements = parser.parse()
 
-        if (expression == null || hadError) return
+        if (hadError) return
 
-        interpreter.interpret(expression)
+        interpreter.interpret(statements)
     }
 }
 

@@ -3,18 +3,25 @@ package org.zakat.interpreter
 import org.zakat.Lox
 import org.zakat.construct.Expr
 import org.zakat.construct.ExpressionVisitor
+import org.zakat.construct.Statement
+import org.zakat.construct.StatementVisitor
 import org.zakat.lexer.Token
 import org.zakat.lexer.TokenType
 
-class Interpreter : ExpressionVisitor<Any?> {
+class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Any?> {
 
-    fun interpret(expr: Expr) {
+    fun interpret(statements: List<Statement>) {
         try {
-            val value = evaluate(expr)
-            println(stringify(value))
+            for (statement in statements) {
+                execute(statement)
+            }
         } catch (e: RuntimeError) {
             Lox.runtimeError(e)
         }
+    }
+
+    private fun execute(statement: Statement) {
+        statement.accept(this)
     }
 
     override fun visitBinaryExpression(expr: Expr.Binary): Any? {
@@ -117,5 +124,14 @@ class Interpreter : ExpressionVisitor<Any?> {
         }
 
         return value.toString()
+    }
+
+    override fun visitExpressionStmt(stmt: Statement.Expression) {
+        evaluate(stmt.expr)
+    }
+
+    override fun visitPrintStmt(stmt: Statement.Print) {
+        val value = evaluate(stmt.expr)
+        println(stringify(value))
     }
 }

@@ -2,6 +2,7 @@ package org.zakat.parser
 
 import org.zakat.Lox
 import org.zakat.construct.Expr
+import org.zakat.construct.Statement
 import org.zakat.lexer.Token
 import org.zakat.lexer.TokenType
 
@@ -10,12 +11,30 @@ class Parser(
 ) {
     private var current = 0
 
-    fun parse(): Expr? {
-        return try {
-            expression()
-        } catch (e: ParseError) {
-            null
+    fun parse(): List<Statement> {
+        val statements = mutableListOf<Statement>()
+        while (hasNext()) {
+            statements.add(statement())
         }
+
+        return statements
+    }
+
+    private fun statement(): Statement {
+        if (match(TokenType.PRINT)) return printStatement()
+        return expressionStatement()
+    }
+
+    private fun printStatement(): Statement {
+        val value = expression()
+        consume(TokenType.SEMICOLON, "Expect ';' after value.")
+        return Statement.Print(value)
+    }
+
+    private fun expressionStatement(): Statement {
+        val expr = expression()
+        consume(TokenType.SEMICOLON, "Expect ';' after expression.")
+        return Statement.Expression(expr)
     }
 
     private fun expression(): Expr {
