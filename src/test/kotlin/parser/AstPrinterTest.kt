@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test
 import org.zakat.lexer.Token
 import org.zakat.lexer.TokenType
 import org.zakat.parser.AstPrinter
-import org.zakat.parser.Expression
+import org.zakat.expression.Expression
 import kotlin.test.assertEquals
 
 class AstPrinterTest {

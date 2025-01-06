@@ -4,7 +4,7 @@ import org.zakat.interpreter.Interpreter
 import org.zakat.lexer.Lexer
 import org.zakat.lexer.Token
 import org.zakat.lexer.TokenType
-import org.zakat.org.zakat.interpreter.RuntimeError
+import org.zakat.interpreter.RuntimeError
 import org.zakat.parser.Parser
 import java.io.BufferedReader
 import java.io.InputStreamReader

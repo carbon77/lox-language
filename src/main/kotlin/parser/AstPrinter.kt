@@ -1,5 +1,7 @@
 package org.zakat.parser
 
+import org.zakat.expression.Expression
+
 class AstPrinter : Expression.Visitor<String> {
     fun print(expr: Expression): String {
         return expr.accept(this)

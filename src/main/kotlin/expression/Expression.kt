@@ -1,4 +1,4 @@
-package org.zakat.parser
+package org.zakat.expression
 
 import org.zakat.lexer.Token
 

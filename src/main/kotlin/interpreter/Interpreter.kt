@@ -3,8 +3,7 @@ package org.zakat.interpreter
 import org.zakat.Lox
 import org.zakat.lexer.Token
 import org.zakat.lexer.TokenType
-import org.zakat.org.zakat.interpreter.RuntimeError
-import org.zakat.parser.Expression
+import org.zakat.expression.Expression
 
 class Interpreter : Expression.Visitor<Any?> {
 
