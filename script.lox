@@ -8,11 +8,13 @@ var b = 4;
 
 print a * b;
 
-if (a >= 3) {
-    print "a greater or equal 3";
+var msg;
+if (a >= 3 and (false or b / 2 == 2)) {
+    msg = "if branch";
 } else {
-    print "a less than 3"
+    msg = "else branch";
 }
+print msg;
 
 var name = "world";
 print "Hello" + (" " + name);

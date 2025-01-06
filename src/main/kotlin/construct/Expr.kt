@@ -17,6 +17,12 @@ interface Expr {
         }
     }
 
+    data class Logical(val left: Expr, val operator: Token, val right: Expr) : Expr {
+        override fun <T> accept(visitor: ExpressionVisitor<T>): T {
+            return visitor.visitLogicalExpression(this)
+        }
+    }
+
     data class Grouping(val expr: Expr) : Expr {
         override fun <T> accept(visitor: ExpressionVisitor<T>): T {
             return visitor.visitGroupingExpression(this)

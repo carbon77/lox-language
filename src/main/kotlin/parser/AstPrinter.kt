@@ -43,4 +43,8 @@ class AstPrinter : ExpressionVisitor<String> {
     override fun visitAssignExpression(expr: Expr.Assign): String {
         return parenthesize("=", expr.value)
     }
+
+    override fun visitLogicalExpression(expr: Expr.Logical): String {
+        return parenthesize(expr.operator.lexeme, expr.left, expr.right)
+    }
 }

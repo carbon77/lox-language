@@ -7,4 +7,5 @@ interface ExpressionVisitor<T> {
     fun visitUnaryExpression(expr: Expr.Unary): T
     fun visitVariableExpression(expr: Expr.Variable): T
     fun visitAssignExpression(expr: Expr.Assign): T
+    fun visitLogicalExpression(expr: Expr.Logical): T
 }

@@ -100,6 +100,18 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor {
         return value
     }
 
+    override fun visitLogicalExpression(expr: Expr.Logical): Any? {
+        val left = evaluate(expr.left)
+
+        if (expr.operator.type == TokenType.OR) {
+            if (isTruthy(left)) return left
+        } else {
+            if (!isTruthy(left)) return left
+        }
+
+        return evaluate(expr.right)
+    }
+
     private fun evaluate(expr: Expr): Any? {
         return expr.accept(this)
     }
