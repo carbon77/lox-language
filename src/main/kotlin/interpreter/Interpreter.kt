@@ -1,23 +1,23 @@
 package org.zakat.interpreter
 
 import org.zakat.Lox
-import org.zakat.construct.Expression
+import org.zakat.construct.Expr
 import org.zakat.construct.Visitor
 import org.zakat.lexer.Token
 import org.zakat.lexer.TokenType
 
 class Interpreter : Visitor<Any?> {
 
-    fun interpret(expression: Expression) {
+    fun interpret(expr: Expr) {
         try {
-            val value = evaluate(expression)
+            val value = evaluate(expr)
             println(stringify(value))
         } catch (e: RuntimeError) {
             Lox.runtimeError(e)
         }
     }
 
-    override fun visitBinaryExpression(expr: Expression.Binary): Any? {
+    override fun visitBinaryExpression(expr: Expr.Binary): Any? {
         val left = evaluate(expr.left)
         val right = evaluate(expr.right)
 
@@ -59,15 +59,15 @@ class Interpreter : Visitor<Any?> {
         }
     }
 
-    override fun visitGroupingExpression(expr: Expression.Grouping): Any? {
+    override fun visitGroupingExpression(expr: Expr.Grouping): Any? {
         return evaluate(expr.expr)
     }
 
-    override fun visitLiteralExpression(expr: Expression.Literal): Any? {
+    override fun visitLiteralExpression(expr: Expr.Literal): Any? {
         return expr.value
     }
 
-    override fun visitUnaryExpression(expr: Expression.Unary): Any? {
+    override fun visitUnaryExpression(expr: Expr.Unary): Any? {
         val right: Any? = evaluate(expr.right)
 
         return when (expr.operator.type) {
@@ -81,8 +81,8 @@ class Interpreter : Visitor<Any?> {
         }
     }
 
-    private fun evaluate(expression: Expression): Any? {
-        return expression.accept(this)
+    private fun evaluate(expr: Expr): Any? {
+        return expr.accept(this)
     }
 
     private fun isTruthy(obj: Any?): Boolean {

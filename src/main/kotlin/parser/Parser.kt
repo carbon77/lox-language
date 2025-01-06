@@ -1,7 +1,7 @@
 package org.zakat.parser
 
 import org.zakat.Lox
-import org.zakat.construct.Expression
+import org.zakat.construct.Expr
 import org.zakat.lexer.Token
 import org.zakat.lexer.TokenType
 
@@ -10,7 +10,7 @@ class Parser(
 ) {
     private var current = 0
 
-    fun parse(): Expression? {
+    fun parse(): Expr? {
         return try {
             expression()
         } catch (e: ParseError) {
@@ -18,7 +18,7 @@ class Parser(
         }
     }
 
-    private fun expression(): Expression {
+    private fun expression(): Expr {
         if (check(
                 TokenType.EQUAL,
                 TokenType.EQUAL_EQUAL,
@@ -38,20 +38,20 @@ class Parser(
     }
 
     // Grammar rule for !=, ==
-    private fun equality(): Expression {
+    private fun equality(): Expr {
         var expression = comparison()
 
         while (match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL)) {
             val operator = previous()
             val right = comparison()
-            expression = Expression.Binary(expression, operator, right)
+            expression = Expr.Binary(expression, operator, right)
         }
 
         return expression
     }
 
     // Grammar rule for >, >=, <, <=
-    private fun comparison(): Expression {
+    private fun comparison(): Expr {
         var expression = term()
 
         while (match(
@@ -61,53 +61,53 @@ class Parser(
         ) {
             val operator = previous()
             val right = term()
-            expression = Expression.Binary(expression, operator, right)
+            expression = Expr.Binary(expression, operator, right)
         }
 
         return expression
     }
 
     // Grammar rule for -, +
-    private fun term(): Expression {
+    private fun term(): Expr {
         var expression = factor()
 
         while (match(TokenType.MINUS, TokenType.PLUS)) {
             val operator = previous()
             val right = factor()
-            expression = Expression.Binary(expression, operator, right)
+            expression = Expr.Binary(expression, operator, right)
         }
 
         return expression
     }
 
     // Grammar rule for /, *
-    private fun factor(): Expression {
+    private fun factor(): Expr {
         var expression = unary()
 
         while (match(TokenType.SLASH, TokenType.STAR)) {
             val operator = previous()
             val right = unary()
-            expression = Expression.Binary(expression, operator, right)
+            expression = Expr.Binary(expression, operator, right)
         }
 
         return expression
     }
 
-    private fun unary(): Expression {
+    private fun unary(): Expr {
         if (match(TokenType.BANG, TokenType.MINUS)) {
             val operator = previous()
             val right = unary()
-            return Expression.Unary(operator, right)
+            return Expr.Unary(operator, right)
         }
         return primary()
     }
 
-    private fun primary(): Expression {
+    private fun primary(): Expr {
         return when {
-            match(TokenType.FALSE) -> Expression.Literal(false)
-            match(TokenType.TRUE) -> Expression.Literal(true)
-            match(TokenType.NIL) -> Expression.Literal(null)
-            match(TokenType.NUMBER, TokenType.STRING) -> Expression.Literal(previous().literal)
+            match(TokenType.FALSE) -> Expr.Literal(false)
+            match(TokenType.TRUE) -> Expr.Literal(true)
+            match(TokenType.NIL) -> Expr.Literal(null)
+            match(TokenType.NUMBER, TokenType.STRING) -> Expr.Literal(previous().literal)
             match(TokenType.LEFT_PAREN) -> {
                 val expression = expression()
                 consume(TokenType.RIGHT_PAREN, "Expect ')' after expression")
