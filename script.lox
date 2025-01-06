@@ -8,5 +8,11 @@ var b = 4;
 
 print a * b;
 
+if (a >= 3) {
+    print "a greater or equal 3";
+} else {
+    print "a less than 3"
+}
+
 var name = "world";
 print "Hello" + (" " + name);

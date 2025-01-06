@@ -5,4 +5,5 @@ interface StatementVisitor {
     fun visitPrintStmt(stmt: Statement.Print)
     fun visitVarStmt(stmt: Statement.Var)
     fun visitBlockStmt(stmt: Statement.Block)
+    fun visitIfStmt(stmt: Statement.If)
 }

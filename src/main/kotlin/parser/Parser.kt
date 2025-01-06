@@ -30,6 +30,29 @@ class Parser(
         }
     }
 
+    private fun statement(): Statement {
+        return when {
+            match(TokenType.PRINT) -> printStatement()
+            match(TokenType.LEFT_BRACE) -> Statement.Block(block())
+            match(TokenType.IF) -> ifStatement()
+            else -> expressionStatement()
+        }
+    }
+
+    private fun ifStatement(): Statement {
+        consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.")
+        val condition = expression()
+        consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition.")
+
+        val thenBranch = statement()
+        var elseBranch: Statement? = null
+        if (match(TokenType.ELSE)) {
+            elseBranch = statement()
+        }
+
+        return Statement.If(condition, thenBranch, elseBranch)
+    }
+
     private fun varDeclaration(): Statement {
         val name = consume(TokenType.IDENTIFIER, "Expect variable name")
 
@@ -40,16 +63,6 @@ class Parser(
 
         consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.")
         return Statement.Var(name, initializer)
-    }
-
-    private fun statement(): Statement {
-        return when {
-            match(TokenType.PRINT) -> printStatement()
-            match(TokenType.LEFT_BRACE) -> {
-                Statement.Block(block())
-            }
-            else -> expressionStatement()
-        }
     }
 
     private fun block(): List<Statement?> {
@@ -187,6 +200,7 @@ class Parser(
                 consume(TokenType.RIGHT_PAREN, "Expect ')' after expression")
                 expression
             }
+
             match(TokenType.IDENTIFIER) -> Expr.Variable(previous())
 
             else -> throw error(peek(), "Expect expression")

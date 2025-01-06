@@ -175,4 +175,12 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor {
     override fun visitBlockStmt(stmt: Statement.Block) {
         executeBlock(stmt.statements, Environment(environment))
     }
+
+    override fun visitIfStmt(stmt: Statement.If) {
+        if (isTruthy(evaluate(stmt.condition))) {
+            execute(stmt.thenBranch)
+        } else if (stmt.elseBranch != null) {
+            execute(stmt.elseBranch)
+        }
+    }
 }

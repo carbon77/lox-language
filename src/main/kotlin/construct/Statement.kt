@@ -28,4 +28,14 @@ interface Statement {
             return visitor.visitVarStmt(this)
         }
     }
+
+    data class If(
+        val condition: Expr,
+        val thenBranch: Statement,
+        val elseBranch: Statement?,
+    ) : Statement {
+        override fun accept(visitor: StatementVisitor) {
+            return visitor.visitIfStmt(this)
+        }
+    }
 }
