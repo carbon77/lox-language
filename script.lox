@@ -1,0 +1,12 @@
+fun counter(step) {
+    var i = 0;
+    fun count() {
+        i = i + step;
+        return i;
+    }
+    return count;
+}
+
+var double_count = counter(2);
+print double_count();
+print double_count();

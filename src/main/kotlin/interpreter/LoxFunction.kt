@@ -5,9 +5,10 @@ import org.zakat.environment.Environment
 
 class LoxFunction(
     private val declaration: Statement.Function,
+    private val closure: Environment,
 ) : LoxCallable {
     override fun call(interpreter: Interpreter, args: MutableList<Any?>): Any? {
-        val env = Environment(interpreter.globals)
+        val env = Environment(closure)
         for (i in declaration.params.indices) {
             env.define(declaration.params[i].lexeme, args[i])
         }
