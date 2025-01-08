@@ -5,6 +5,7 @@ import org.zakat.construct.Expr
 import org.zakat.construct.Statement
 import org.zakat.lexer.Token
 import org.zakat.lexer.TokenType
+import kotlin.math.exp
 
 class Parser(
     private val tokens: List<Token>,
@@ -22,12 +23,43 @@ class Parser(
 
     private fun declaration(): Statement? {
         try {
+            if (match(TokenType.FUN)) return function("function")
             if (match(TokenType.VAR)) return varDeclaration()
             return statement()
         } catch (e: ParseError) {
             synchronize()
             return null
         }
+    }
+
+    // We use the same grammar rule for functions and class methods,
+    // because we need its own error messages
+    // kind parameter indicates whether it's function of class method
+    private fun function(kind: String): Statement.Function {
+        val name = consume(
+            TokenType.IDENTIFIER,
+            "Expect $kind name."
+        )
+
+        // Parsing parameters list
+        consume(TokenType.LEFT_PAREN, "Expect '(' after $kind name.")
+        val params = mutableListOf<Token>()
+        if (!check(TokenType.RIGHT_PAREN)) {
+            do {
+                if (params.size >= 255) {
+                    error(peek(), "Can't have more than 255 parameters.")
+                }
+                params.add(
+                    consume(TokenType.IDENTIFIER, "Expect parameter name.")
+                )
+            } while (match(TokenType.COMMA))
+        }
+        consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.")
+
+        // Parsing function body
+        consume(TokenType.LEFT_BRACE, "Expect '{' before $kind body.")
+        val body = block()
+        return Statement.Function(name, params, body)
     }
 
     private fun statement(): Statement {
@@ -37,8 +69,16 @@ class Parser(
             match(TokenType.IF) -> ifStatement()
             match(TokenType.WHILE) -> whileStatement()
             match(TokenType.FOR) -> forStatement()
+            match(TokenType.RETURN) -> returnStatement()
             else -> expressionStatement()
         }
+    }
+
+    private fun returnStatement(): Statement {
+        val keyword = previous()
+        val value: Expr? = if (check(TokenType.SEMICOLON)) null else expression()
+        consume(TokenType.SEMICOLON, "Expect ';' after return value.")
+        return Statement.Return(keyword, value)
     }
 
     // We don't create class for 'for loop'.
@@ -118,6 +158,8 @@ class Parser(
         return Statement.Var(name, initializer)
     }
 
+    // The function assumes that LEFT_BRACE token has already been consumed
+    // to form more precise error message
     private fun block(): List<Statement?> {
         val statements = mutableListOf<Statement?>()
 
@@ -279,7 +321,7 @@ class Parser(
 
         return expr
     }
-    
+
     private fun finishCall(callee: Expr): Expr {
         val args = mutableListOf<Expr>()
         if (!check(TokenType.RIGHT_PAREN)) {
@@ -288,10 +330,12 @@ class Parser(
                     error(peek(), "Can't have more than 255 arguments.")
                 }
                 args.add(expression())
-            } while(match(TokenType.COMMA))
+            } while (match(TokenType.COMMA))
         }
-        val paren = consume(TokenType.RIGHT_PAREN,
-            "Expect ')' after arguments.")
+        val paren = consume(
+            TokenType.RIGHT_PAREN,
+            "Expect ')' after arguments."
+        )
         return Expr.Call(callee, paren, args)
     }
 

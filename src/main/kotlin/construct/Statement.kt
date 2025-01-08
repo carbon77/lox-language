@@ -35,6 +35,18 @@ interface Statement {
         }
     }
 
+    data class Function(val name: Token, val params: List<Token>, val body: List<Statement?>) : Statement {
+        override fun accept(visitor: StatementVisitor) {
+            return visitor.visitFunctionStmt(this)
+        }
+    }
+
+    data class Return(val keyword: Token, val value: Expr?): Statement {
+        override fun accept(visitor: StatementVisitor) {
+            return visitor.visitReturnStmt(this)
+        }
+    }
+
     data class If(
         val condition: Expr,
         val thenBranch: Statement,

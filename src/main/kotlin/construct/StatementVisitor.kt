@@ -7,4 +7,6 @@ interface StatementVisitor {
     fun visitBlockStmt(stmt: Statement.Block)
     fun visitIfStmt(stmt: Statement.If)
     fun visitWhileStmt(stmt: Statement.While)
+    fun visitFunctionStmt(stmt: Statement.Function)
+    fun visitReturnStmt(stmt: Statement.Return)
 }

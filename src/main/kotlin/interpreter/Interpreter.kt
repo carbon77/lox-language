@@ -8,10 +8,9 @@ import org.zakat.construct.StatementVisitor
 import org.zakat.environment.Environment
 import org.zakat.lexer.Token
 import org.zakat.lexer.TokenType
-import org.zakat.org.zakat.interpreter.LoxCallable
 
 class Interpreter : ExpressionVisitor<Any?>, StatementVisitor {
-    private val globals = Environment()
+    val globals = Environment()
     private var environment = globals
 
     init {
@@ -112,12 +111,6 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor {
         return value
     }
 
-    override fun visitWhileStmt(stmt: Statement.While) {
-        while (isTruthy(evaluate(stmt.condition))) {
-            execute(stmt.body)
-        }
-    }
-
     override fun visitLogicalExpression(expr: Expr.Logical): Any? {
         val left = evaluate(expr.left)
 
@@ -188,7 +181,7 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor {
         return value.toString()
     }
 
-    private fun executeBlock(
+    fun executeBlock(
         statements: List<Statement?>,
         environment: Environment,
     ) {
@@ -232,5 +225,21 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor {
         } else if (stmt.elseBranch != null) {
             execute(stmt.elseBranch)
         }
+    }
+
+    override fun visitWhileStmt(stmt: Statement.While) {
+        while (isTruthy(evaluate(stmt.condition))) {
+            execute(stmt.body)
+        }
+    }
+
+    override fun visitFunctionStmt(stmt: Statement.Function) {
+        val function = LoxFunction(stmt)
+        environment.define(stmt.name.lexeme, function)
+    }
+
+    override fun visitReturnStmt(stmt: Statement.Return) {
+        val value = if (stmt.value == null) null else evaluate(stmt.value)
+        throw Return(value)
     }
 }
