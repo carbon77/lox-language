@@ -46,4 +46,10 @@ interface Expr {
             return visitor.visitVariableExpression(this)
         }
     }
+
+    data class Call(val callee: Expr, val paren: Token, val arguments: List<Expr>): Expr {
+        override fun <T> accept(visitor: ExpressionVisitor<T>): T {
+            return visitor.visitCallExpression(this)
+        }
+    }
 }

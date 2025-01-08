@@ -8,9 +8,21 @@ import org.zakat.construct.StatementVisitor
 import org.zakat.environment.Environment
 import org.zakat.lexer.Token
 import org.zakat.lexer.TokenType
+import org.zakat.org.zakat.interpreter.LoxCallable
 
 class Interpreter : ExpressionVisitor<Any?>, StatementVisitor {
-    private var environment = Environment()
+    private val globals = Environment()
+    private var environment = globals
+
+    init {
+        globals.define("clock", object : LoxCallable {
+            override fun arity() = 0
+            override fun toString() = "<native fn>"
+            override fun call(interpreter: Interpreter, args: MutableList<Any?>): Double {
+                return System.currentTimeMillis() / 1000.0
+            }
+        })
+    }
 
     fun interpret(statements: List<Statement?>) {
         try {
@@ -96,7 +108,7 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor {
 
     override fun visitAssignExpression(expr: Expr.Assign): Any? {
         val value = evaluate(expr.value)
-        environment[expr.name] = value
+        environment.assign(expr.name, value)
         return value
     }
 
@@ -116,6 +128,26 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor {
         }
 
         return evaluate(expr.right)
+    }
+
+    override fun visitCallExpression(expr: Expr.Call): Any? {
+        val callee = evaluate(expr.callee)
+
+        val args = mutableListOf<Any?>()
+        for (arg in expr.arguments) {
+            args.add(evaluate(arg))
+        }
+
+        if (callee !is LoxCallable) {
+            throw RuntimeError(expr.paren,
+                "Can only call functions and classes.")
+        }
+
+        if (args.size != callee.arity()) {
+            throw RuntimeError(expr.paren,
+                "Exprected ${callee.arity()} arguments but got ${args.size}.")
+        }
+        return callee.call(this, args)
     }
 
     private fun evaluate(expr: Expr): Any? {
@@ -187,7 +219,7 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor {
             value = evaluate(stmt.initializer)
         }
 
-        environment[stmt.name.lexeme] = value
+        environment.define(stmt.name.lexeme, value)
     }
 
     override fun visitBlockStmt(stmt: Statement.Block) {

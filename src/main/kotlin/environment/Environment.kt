@@ -8,18 +8,18 @@ class Environment(private val enclosing: Environment?) {
 
     private val values = mutableMapOf<String, Any?>()
 
-    operator fun set(name: String, value: Any?) {
+    fun define(name: String, value: Any?) {
         values[name] = value
     }
 
-    operator fun set(name: Token, value: Any?) {
+    fun assign(name: Token, value: Any?) {
         if (name.lexeme in values) {
             values[name.lexeme] = value
             return
         }
 
         if (enclosing != null) {
-            enclosing[name] = value
+            enclosing.assign(name, value)
             return
         }
 

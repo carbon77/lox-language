@@ -47,4 +47,8 @@ class AstPrinter : ExpressionVisitor<String> {
     override fun visitLogicalExpression(expr: Expr.Logical): String {
         return parenthesize(expr.operator.lexeme, expr.left, expr.right)
     }
+
+    override fun visitCallExpression(expr: Expr.Call): String {
+        return "${expr.callee}(${expr.arguments.joinToString(", ") { it.accept(this) }})"
+    }
 }
