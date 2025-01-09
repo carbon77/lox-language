@@ -12,6 +12,7 @@ import org.zakat.lexer.TokenType
 class Interpreter : ExpressionVisitor<Any?>, StatementVisitor {
     val globals = Environment()
     private var environment = globals
+    private val locals = mutableMapOf<Expr, Int>()
 
     init {
         globals.define("clock", object : LoxCallable {
@@ -102,12 +103,18 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor {
     }
 
     override fun visitVariableExpression(expr: Expr.Variable): Any? {
-        return environment[expr.name]
+        return lookUpVariable(expr.name, expr)
     }
 
     override fun visitAssignExpression(expr: Expr.Assign): Any? {
         val value = evaluate(expr.value)
-        environment.assign(expr.name, value)
+
+        val distance = locals[expr]
+        if (distance != null) {
+            environment.assignAt(distance, expr.name, value)
+        } else {
+            globals.assign(expr.name, value)
+        }
         return value
     }
 
@@ -241,5 +248,17 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor {
     override fun visitReturnStmt(stmt: Statement.Return) {
         val value = if (stmt.value == null) null else evaluate(stmt.value)
         throw Return(value)
+    }
+
+    fun resolve(expr: Expr, depth: Int) {
+        locals[expr] = depth
+    }
+
+    private fun lookUpVariable(name: Token, expr: Expr): Any? {
+        val distance = locals[expr]
+        if (distance != null) {
+            return environment.getAt(distance, name.lexeme)
+        }
+        return globals[name]
     }
 }

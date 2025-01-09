@@ -6,6 +6,7 @@ import org.zakat.lexer.Lexer
 import org.zakat.lexer.Token
 import org.zakat.lexer.TokenType
 import org.zakat.parser.Parser
+import org.zakat.resolver.Resolver
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.nio.charset.Charset
@@ -69,7 +70,10 @@ class Lox {
 
         val parser = Parser(tokens)
         val statements = parser.parse()
+        if (hadError) return
 
+        val resolver = Resolver(interpreter)
+        resolver.resolve(statements)
         if (hadError) return
 
         interpreter.interpret(statements)
