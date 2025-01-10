@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "chuck.h"
 #include "debug.h"
 #include "value.h"
 
@@ -27,6 +28,13 @@ void disassembleChunk(Chunk *chunk, const char *name) {
 
 int disassembleInstruction(Chunk *chunk, int offset) {
   printf("%04d ", offset);
+  int previousLine = offset > 0 ? getLine(chunk, offset - 1) : -1;
+  int line = getLine(chunk, offset);
+  if (offset > 0 && line == previousLine) {
+    printf("\t| ");
+  } else {
+    printf("%4d ", line);
+  }
 
   uint8_t instruction = chunk->code[offset];
   switch (instruction) {
