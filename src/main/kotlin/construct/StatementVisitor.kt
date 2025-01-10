@@ -9,4 +9,5 @@ interface StatementVisitor {
     fun visitWhileStmt(stmt: Statement.While)
     fun visitFunctionStmt(stmt: Statement.Function)
     fun visitReturnStmt(stmt: Statement.Return)
+    fun visitClassStmt(stmt: Statement.Class)
 }

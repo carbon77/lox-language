@@ -1,9 +1,11 @@
-var a = "global";
-{
-fun showA() {
-print a;
+class Point {}
+
+fun s(point) {
+    return point.x + point.y;
 }
-showA();
-var a = "block";
-showA();
-}
+
+var a = Point();
+a.x = 4;
+a.y = 5;
+
+print s(a);

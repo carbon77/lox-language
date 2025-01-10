@@ -9,4 +9,6 @@ interface ExpressionVisitor<T> {
     fun visitAssignExpression(expr: Expr.Assign): T
     fun visitLogicalExpression(expr: Expr.Logical): T
     fun visitCallExpression(expr: Expr.Call): T
+    fun visitGetExpression(expr: Expr.Get): T
+    fun visitSetExpression(expr: Expr.Set): T
 }

@@ -52,4 +52,16 @@ interface Expr {
             return visitor.visitCallExpression(this)
         }
     }
+
+    data class Get(val obj: Expr, val name: Token) : Expr {
+        override fun <T> accept(visitor: ExpressionVisitor<T>): T {
+            return visitor.visitGetExpression(this)
+        }
+    }
+
+    data class Set(val obj: Expr, val name: Token, val value: Expr) : Expr {
+        override fun <T> accept(visitor: ExpressionVisitor<T>): T {
+            return visitor.visitSetExpression(this)
+        }
+    }
 }

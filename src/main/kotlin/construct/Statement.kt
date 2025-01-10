@@ -56,4 +56,10 @@ interface Statement {
             return visitor.visitIfStmt(this)
         }
     }
+
+    data class Class(val name: Token, val methods: List<Function>) : Statement {
+        override fun accept(visitor: StatementVisitor) {
+            return visitor.visitClassStmt(this)
+        }
+    }
 }

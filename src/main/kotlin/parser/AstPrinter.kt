@@ -51,4 +51,12 @@ class AstPrinter : ExpressionVisitor<String> {
     override fun visitCallExpression(expr: Expr.Call): String {
         return "${expr.callee}(${expr.arguments.joinToString(", ") { it.accept(this) }})"
     }
+
+    override fun visitGetExpression(expr: Expr.Get): String {
+        TODO("Not yet implemented")
+    }
+
+    override fun visitSetExpression(expr: Expr.Set): String {
+        TODO("Not yet implemented")
+    }
 }

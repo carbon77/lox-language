@@ -57,6 +57,15 @@ class Resolver(
         }
     }
 
+    override fun visitGetExpression(expr: Expr.Get) {
+        resolve(expr.obj)
+    }
+
+    override fun visitSetExpression(expr: Expr.Set) {
+        resolve(expr.value)
+        resolve(expr.obj)
+    }
+
     override fun visitExpressionStmt(stmt: Statement.Expression) {
         resolve(stmt.expr)
     }
@@ -103,6 +112,11 @@ class Resolver(
         }
 
         if (stmt.value != null) resolve(stmt.value)
+    }
+
+    override fun visitClassStmt(stmt: Statement.Class) {
+        declare(stmt.name)
+        define(stmt.name)
     }
 
     private fun beginScope() {

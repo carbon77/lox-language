@@ -132,15 +132,14 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor {
 
     override fun visitCallExpression(expr: Expr.Call): Any? {
         val callee = evaluate(expr.callee)
+        if (callee !is LoxCallable) {
+            throw RuntimeError(expr.paren,
+                "Can only call functions and classes.")
+        }
 
         val args = mutableListOf<Any?>()
         for (arg in expr.arguments) {
             args.add(evaluate(arg))
-        }
-
-        if (callee !is LoxCallable) {
-            throw RuntimeError(expr.paren,
-                "Can only call functions and classes.")
         }
 
         if (args.size != callee.arity()) {
@@ -148,6 +147,27 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor {
                 "Exprected ${callee.arity()} arguments but got ${args.size}.")
         }
         return callee.call(this, args)
+    }
+
+    override fun visitGetExpression(expr: Expr.Get): Any? {
+        val obj = evaluate(expr.obj)
+        if (obj is LoxInstance) {
+            return obj.get(expr.name)
+        }
+        throw RuntimeError(expr.name,
+            "Only instances have properties.")
+    }
+
+    override fun visitSetExpression(expr: Expr.Set): Any? {
+        val obj = evaluate(expr.obj)
+        if (obj !is LoxInstance) {
+            throw RuntimeError(expr.name,
+                "Only instances have fields.")
+        }
+
+        val value = evaluate(expr.value)
+        obj.set(expr.name, value)
+        return value
     }
 
     private fun evaluate(expr: Expr): Any? {
@@ -248,6 +268,12 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor {
     override fun visitReturnStmt(stmt: Statement.Return) {
         val value = if (stmt.value == null) null else evaluate(stmt.value)
         throw Return(value)
+    }
+
+    override fun visitClassStmt(stmt: Statement.Class) {
+        environment.define(stmt.name.lexeme, null)
+        val klass = LoxClass(stmt.name.lexeme)
+        environment.assign(stmt.name, klass)
     }
 
     fun resolve(expr: Expr, depth: Int) {
