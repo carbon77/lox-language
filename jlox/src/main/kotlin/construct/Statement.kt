@@ -57,7 +57,11 @@ interface Statement {
         }
     }
 
-    data class Class(val name: Token, val methods: List<Function>) : Statement {
+    data class Class(
+        val name: Token,
+        val superClass: Expr.Variable?,
+        val methods: List<Function>,
+    ) : Statement {
         override fun accept(visitor: StatementVisitor) {
             return visitor.visitClassStmt(this)
         }

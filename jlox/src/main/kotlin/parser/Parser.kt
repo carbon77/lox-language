@@ -35,6 +35,13 @@ class Parser(
 
     private fun classDeclaration(): Statement {
         val name = consume(TokenType.IDENTIFIER, "Expect class name.")
+
+        var superClass: Expr.Variable? = null
+        if (match(TokenType.LESS)) {
+            consume(TokenType.IDENTIFIER, "Expect superclass name.")
+            superClass = Expr.Variable(previous())
+        }
+
         consume(TokenType.LEFT_BRACE, "Expect '{' before class body.")
 
         val methods = mutableListOf<Statement.Function>()
@@ -42,7 +49,7 @@ class Parser(
             methods.add(function("method"))
         }
         consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.")
-        return Statement.Class(name, methods)
+        return Statement.Class(name, superClass, methods)
     }
 
     // We use the same grammar rule for functions and class methods,
@@ -371,6 +378,13 @@ class Parser(
             }
             match(TokenType.THIS) -> Expr.This(previous())
             match(TokenType.IDENTIFIER) -> Expr.Variable(previous())
+            match(TokenType.SUPER) -> {
+                val keyword = previous()
+                consume(TokenType.DOT, "Expect '.' after 'super'.")
+                val method = consume(TokenType.IDENTIFIER,
+                    "Expect superclass method name.")
+                Expr.Super(keyword, method)
+            }
 
             else -> throw error(peek(), "Expect expression")
         }

@@ -1,19 +1,23 @@
-class Point {
-    init(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-
-    sum() {
-        return this.x + this.y;
-    }
-
-    combine(point) {
-        return Point(this.x + point.x, this.y + point.y);
+class Figure {
+    area() {
+        return -1;
     }
 }
 
-var a = Point(1, 10);
-var b = Point(4, 5);
-var c = a.combine(b);
-print c.sum();
+class Point < Figure {}
+
+class Square < Figure {
+    init(a) {
+        this.a = a;
+    }
+
+    area() {
+        return this.a * this.a;
+    }
+}
+
+var square = Square(5);
+print square.area();
+
+var point = Point();
+print point.area();

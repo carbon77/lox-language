@@ -70,4 +70,10 @@ interface Expr {
             return visitor.visitThisExpression(this)
         }
     }
+
+    data class Super(val keyword: Token, val method: Token) : Expr {
+        override fun <T> accept(visitor: ExpressionVisitor<T>): T {
+            return visitor.visitSuperExpression(this)
+        }
+    }
 }

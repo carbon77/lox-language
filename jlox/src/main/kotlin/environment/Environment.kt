@@ -3,7 +3,7 @@ package org.zakat.environment
 import org.zakat.interpreter.RuntimeError
 import org.zakat.lexer.Token
 
-class Environment(private val enclosing: Environment?) {
+class Environment(val enclosing: Environment?) {
     constructor() : this(null)
 
     private val values = mutableMapOf<String, Any?>()

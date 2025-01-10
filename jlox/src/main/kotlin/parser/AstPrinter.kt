@@ -63,4 +63,8 @@ class AstPrinter : ExpressionVisitor<String> {
     override fun visitThisExpression(expr: Expr.This): String {
         TODO("Not yet implemented")
     }
+
+    override fun visitSuperExpression(expr: Expr.Super): String {
+        TODO("Not yet implemented")
+    }
 }

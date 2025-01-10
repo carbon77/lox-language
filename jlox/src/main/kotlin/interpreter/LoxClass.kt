@@ -2,6 +2,7 @@ package org.zakat.interpreter
 
 class LoxClass(
     internal val name: String,
+    private val superClass: LoxClass?,
     private val methods: Map<String, LoxFunction>,
 ): LoxCallable {
     override fun call(interpreter: Interpreter, args: MutableList<Any?>): Any? {
@@ -23,6 +24,13 @@ class LoxClass(
     }
 
     fun findMethod(name: String): LoxFunction? {
-        return methods[name]
+        if (name in methods) {
+            return methods[name]
+        }
+
+        if (superClass != null) {
+            return superClass.findMethod(name)
+        }
+        return null
     }
 }
