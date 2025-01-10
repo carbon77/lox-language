@@ -1,11 +1,19 @@
-class Point {}
+class Point {
+    init(x, y) {
+        this.x = x;
+        this.y = y;
+    }
 
-fun s(point) {
-    return point.x + point.y;
+    sum() {
+        return this.x + this.y;
+    }
+
+    combine(point) {
+        return Point(this.x + point.x, this.y + point.y);
+    }
 }
 
-var a = Point();
-a.x = 4;
-a.y = 5;
-
-print s(a);
+var a = Point(1, 10);
+var b = Point(4, 5);
+var c = a.combine(b);
+print c.sum();

@@ -170,6 +170,10 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor {
         return value
     }
 
+    override fun visitThisExpression(expr: Expr.This): Any? {
+        return lookUpVariable(expr.keyword, expr)
+    }
+
     private fun evaluate(expr: Expr): Any? {
         return expr.accept(this)
     }
@@ -261,7 +265,7 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor {
     }
 
     override fun visitFunctionStmt(stmt: Statement.Function) {
-        val function = LoxFunction(stmt, environment)
+        val function = LoxFunction(stmt, environment, false)
         environment.define(stmt.name.lexeme, function)
     }
 
@@ -272,7 +276,14 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor {
 
     override fun visitClassStmt(stmt: Statement.Class) {
         environment.define(stmt.name.lexeme, null)
-        val klass = LoxClass(stmt.name.lexeme)
+
+        val methods = mutableMapOf<String, LoxFunction>()
+        for (method in stmt.methods) {
+            val function = LoxFunction(method, environment, method.name.lexeme == "init")
+            methods[method.name.lexeme] = function
+        }
+
+        val klass = LoxClass(stmt.name.lexeme, methods)
         environment.assign(stmt.name, klass)
     }
 

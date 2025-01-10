@@ -11,4 +11,5 @@ interface ExpressionVisitor<T> {
     fun visitCallExpression(expr: Expr.Call): T
     fun visitGetExpression(expr: Expr.Get): T
     fun visitSetExpression(expr: Expr.Set): T
+    fun visitThisExpression(expr: Expr.This): T
 }

@@ -64,4 +64,10 @@ interface Expr {
             return visitor.visitSetExpression(this)
         }
     }
+
+    data class This(val keyword: Token) : Expr {
+        override fun <T> accept(visitor: ExpressionVisitor<T>): T {
+            return visitor.visitThisExpression(this)
+        }
+    }
 }

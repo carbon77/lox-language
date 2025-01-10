@@ -369,7 +369,7 @@ class Parser(
                 consume(TokenType.RIGHT_PAREN, "Expect ')' after expression")
                 expression
             }
-
+            match(TokenType.THIS) -> Expr.This(previous())
             match(TokenType.IDENTIFIER) -> Expr.Variable(previous())
 
             else -> throw error(peek(), "Expect expression")

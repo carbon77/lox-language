@@ -14,6 +14,7 @@ class Resolver(
 ) : ExpressionVisitor<Unit>, StatementVisitor {
     private val scopes = Stack<MutableMap<String, Boolean>>()
     private var currentFunction = FunctionType.NONE
+    private var currentClass = ClassType.NONE
 
     override fun visitBinaryExpression(expr: Expr.Binary) {
         resolve(expr.left)
@@ -66,6 +67,15 @@ class Resolver(
         resolve(expr.obj)
     }
 
+    override fun visitThisExpression(expr: Expr.This) {
+        if (currentClass == ClassType.NONE) {
+            Lox.error(expr.keyword,
+                "Can't use 'this' outside of a class")
+            return
+        }
+        resolveLocal(expr, expr.keyword)
+    }
+
     override fun visitExpressionStmt(stmt: Statement.Expression) {
         resolve(stmt.expr)
     }
@@ -111,12 +121,33 @@ class Resolver(
             Lox.error(stmt.keyword, "Can't return from top-level code.")
         }
 
-        if (stmt.value != null) resolve(stmt.value)
+        if (stmt.value != null) {
+            if (currentFunction == FunctionType.INITIALIZER) {
+                Lox.error(stmt.keyword, "Can't return from an initializer.")
+            }
+            resolve(stmt.value)
+        }
     }
 
     override fun visitClassStmt(stmt: Statement.Class) {
+        val enclosingClass = currentClass
+        currentClass = ClassType.CLASS
         declare(stmt.name)
         define(stmt.name)
+
+        beginScope()
+        scopes.peek()["this"] = true
+
+        for (method in stmt.methods) {
+            var declaration = FunctionType.METHOD
+            if (method.name.lexeme == "init") {
+                declaration = FunctionType.INITIALIZER
+            }
+            resolveFunction(method, declaration)
+        }
+
+        endScope()
+        currentClass = enclosingClass
     }
 
     private fun beginScope() {
