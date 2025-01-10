@@ -7,6 +7,7 @@ set(SOURCES
   src/memory.c
   src/chunk.c
   src/debug.c
+  src/value.c
 )
 
 include_directories(src)
