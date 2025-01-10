@@ -57,20 +57,21 @@ int addConstant(Chunk *chunk, Value value) {
 }
 
 int getLine(Chunk *chunk, int instructionIdx) {
-  int instIdx = instructionIdx;
   int lineIdx = -2;
   int line = chunk->lines[0];
+  int previous = 0;
 
   bool isLine = false;
   do {
     lineIdx += 2;
+    int next = chunk->lines[lineIdx + 1];
+
     if (lineIdx == 0) {
-      isLine = instIdx < chunk->lines[lineIdx + 1];
+      isLine = instructionIdx < next;
     } else {
-      int left = chunk->lines[lineIdx - 1];
-      int right = chunk->lines[lineIdx + 1];
-      isLine = left <= instIdx && instIdx < left + right;
+      isLine = previous <= instructionIdx && instructionIdx < previous + next;
     }
+    previous += next;
   } while (!isLine);
   return chunk->lines[lineIdx];
 }

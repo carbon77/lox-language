@@ -6,5 +6,6 @@
 #include <stdint.h>
 
 #define DEBUG_TRACE_EXECUTION
+// #define DEBUG_SHOW_LINES
 
 #endif // !clox_common_h
