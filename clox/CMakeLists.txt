@@ -8,6 +8,7 @@ set(SOURCES
   src/chunk.c
   src/debug.c
   src/value.c
+  src/vm.c
 )
 
 include_directories(src)
