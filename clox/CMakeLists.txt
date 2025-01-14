@@ -9,7 +9,11 @@ set(SOURCES
   src/debug.c
   src/value.c
   src/vm.c
+  src/scanner.c
+  src/compiler.c
 )
+
+configure_file(program.lox src/program.lox COPYONLY)
 
 include_directories(src)
 
