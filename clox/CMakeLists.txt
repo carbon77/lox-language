@@ -12,6 +12,7 @@ set(SOURCES
   src/scanner.c
   src/compiler.c
   src/object.c
+  src/table.c
 )
 
 configure_file(program.lox src/program.lox COPYONLY)
