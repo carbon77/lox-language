@@ -13,6 +13,8 @@ enum class OpCode : uint8_t
 class Chunk
 {
   friend class Debugger;
+  friend class VM;
+  friend int main();
 
 private:
   int count;

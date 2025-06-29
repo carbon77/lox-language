@@ -14,7 +14,10 @@ int main()
   chunk.write((uint8_t)OpCode::OP_RETURN, 123);
 
   Debugger debugger;
-  debugger.disassemble(&chunk, "test");
+  debugger.disassemble(&chunk, "debug");
+  std::cout << "======\n";
+
+  vm.interpret(&chunk);
 
   vm.free();
   chunk.free();

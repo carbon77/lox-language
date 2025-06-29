@@ -8,6 +8,7 @@ typedef double Value;
 class ValueArray
 {
     friend class Chunk;
+    friend class VM;
     friend class Debugger;
 
 private:
