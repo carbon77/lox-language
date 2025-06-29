@@ -1,8 +1,10 @@
 #include "chunk.h"
+#include "vm.h"
 #include "debug.h"
 
 int main()
 {
+  VM vm;
   Chunk chunk;
 
   int constant = chunk.add_constant(1.2);
@@ -13,6 +15,9 @@ int main()
 
   Debugger debugger;
   debugger.disassemble(&chunk, "test");
+
+  vm.free();
+  chunk.free();
 
   return 0;
 }
