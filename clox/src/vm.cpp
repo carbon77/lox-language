@@ -3,6 +3,12 @@
 
 VM::VM()
 {
+    resetStack();
+}
+
+void VM::resetStack()
+{
+    stackTop = stack;
 }
 
 void VM::free()
@@ -21,6 +27,13 @@ InterpretResult VM::run()
     while (true)
     {
 #ifdef DEBUG_TRACE_EXECUTION
+        std::cout << "      ";
+        for (Value *slot = stack; slot < stackTop; slot++)
+        {
+            std::cout << "[ " << *slot << " ]";
+        }
+        std::cout << "\n";
+
         Debugger debugger;
         debugger.disassemble_instruction(chunk, (int)(ip - chunk->code));
 #endif
@@ -31,12 +44,26 @@ InterpretResult VM::run()
         case OpCode::OP_CONSTANT:
         {
             Value constant = chunk->constants.values[*ip++];
-            std::cout << constant << "\n";
+            push(constant);
+            break;
         }
         case OpCode::OP_RETURN:
         {
+            std::cout << pop() << "\n";
             return InterpretResult::INTERPRET_OK;
         }
         }
     }
+}
+
+void VM::push(Value value)
+{
+    *stackTop = value;
+    stackTop++;
+}
+
+Value VM::pop()
+{
+    stackTop--;
+    return *stackTop;
 }

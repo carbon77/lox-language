@@ -1,5 +1,9 @@
 version: "3"
 tasks:
+  compile:
+    cmds:
+      - cd build
+      - cmake ..
   run:
     cmds:
       - cmake --build build
