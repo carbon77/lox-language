@@ -11,6 +11,7 @@ int main()
   chunk.write((uint8_t)OpCode::OP_CONSTANT, 123);
   chunk.write(constant, 123);
 
+  chunk.write((uint8_t)OpCode::OP_NEGATE, 123);
   chunk.write((uint8_t)OpCode::OP_RETURN, 123);
 
   // Debugger debugger;

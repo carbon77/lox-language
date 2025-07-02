@@ -47,6 +47,11 @@ InterpretResult VM::run()
             push(constant);
             break;
         }
+        case OpCode::OP_NEGATE:
+        {
+            push(-pop());
+            break;
+        }
         case OpCode::OP_RETURN:
         {
             std::cout << pop() << "\n";

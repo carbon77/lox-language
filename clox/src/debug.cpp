@@ -44,6 +44,8 @@ int Debugger::disassemble_instruction(Chunk *chunk, int offset)
     return simple_instruction("OP_RETURN", offset);
   case OpCode::OP_CONSTANT:
     return constant_instruction("OP_CONSTANT", chunk, offset);
+  case OpCode::OP_NEGATE:
+    return simple_instruction("OP_NEGATE", offset);
   default:
     std::cout << "Unknown opcode " << instruction << "\n";
     return offset + 1;
