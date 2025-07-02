@@ -7,4 +7,4 @@ tasks:
   run:
     cmds:
       - cmake --build build
-      - ./build/Debug/LoxLang.exe
+      - ./build/Debug/LoxLang.exe {{.CLI_ARGS}}

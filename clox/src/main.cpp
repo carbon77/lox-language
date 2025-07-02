@@ -1,31 +1,81 @@
+#include <string>
+#include <iostream>
+#include <fstream>
+
 #include "chunk.h"
 #include "vm.h"
 #include "debug.h"
 
-int main()
+static InterpretResult interpret(std::string line)
+{
+  return InterpretResult::INTERPRET_OK;
+}
+
+static void repl()
+{
+  while (true)
+  {
+    std::string line;
+    std::cout << "> ";
+
+    std::getline(std::cin, line);
+
+    interpret(line);
+  }
+}
+
+static std::string readFile(std::string path)
+{
+  std::string source;
+  std::ifstream inputFile(path);
+
+  if (!inputFile.is_open())
+  {
+    std::cerr << "Can't open file \"" << path << "\"\n";
+    exit(74);
+  }
+
+  std::string line;
+  while (std::getline(inputFile, line))
+  {
+    source += line + '\n';
+  }
+
+  return source;
+}
+
+static void runFile(std::string path)
+{
+  std::string source = readFile(path);
+  InterpretResult result = interpret(source);
+
+  std::cout << source;
+
+  if (result == InterpretResult::INTERPRET_COMPILE_ERROR)
+    exit(65);
+  if (result == InterpretResult::INTERPRET_RUNTIME_ERROR)
+    exit(70);
+}
+
+int main(int argc, char *argv[])
 {
   VM vm;
-  Chunk chunk;
 
-  int constant = chunk.add_constant(1.2);
-  int constant2 = chunk.add_constant(2.4);
-  chunk.write((uint8_t)OpCode::OP_CONSTANT, 123);
-  chunk.write(constant, 123);
-
-  chunk.write((uint8_t)OpCode::OP_CONSTANT, 124);
-  chunk.write(constant2, 124);
-
-  chunk.write((uint8_t)OpCode::OP_PLUS, 125);
-  chunk.write((uint8_t)OpCode::OP_RETURN, 126);
-
-  // Debugger debugger;
-  // debugger.disassemble(&chunk, "debug");
-  // std::cout << "======\n";
-
-  vm.interpret(&chunk);
+  if (argc == 1)
+  {
+    repl();
+  }
+  else if (argc == 2)
+  {
+    runFile(argv[1]);
+  }
+  else
+  {
+    std::cerr << "Usage: clox [path]\n";
+    exit(64);
+  }
 
   vm.free();
-  chunk.free();
 
   return 0;
 }

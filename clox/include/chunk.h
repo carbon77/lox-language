@@ -19,7 +19,6 @@ class Chunk
 {
   friend class Debugger;
   friend class VM;
-  friend int main();
 
 private:
   int count;
