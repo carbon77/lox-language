@@ -46,6 +46,14 @@ int Debugger::disassemble_instruction(Chunk *chunk, int offset)
     return constant_instruction("OP_CONSTANT", chunk, offset);
   case OpCode::OP_NEGATE:
     return simple_instruction("OP_NEGATE", offset);
+  case OpCode::OP_PLUS:
+    return simple_instruction("OP_PLUS", offset);
+  case OpCode::OP_SUBTRACT:
+    return simple_instruction("OP_SUBTRACT", offset);
+  case OpCode::OP_MULTIPLY:
+    return simple_instruction("OP_MULTIPLY", offset);
+  case OpCode::OP_DIVIDE:
+    return simple_instruction("OP_DIVIDE", offset);
   default:
     std::cout << "Unknown opcode " << instruction << "\n";
     return offset + 1;

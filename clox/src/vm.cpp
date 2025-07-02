@@ -22,6 +22,8 @@ InterpretResult VM::interpret(Chunk *_chunk)
     return run();
 }
 
+static inline void binary_op(VM *vm, char ch);
+
 InterpretResult VM::run()
 {
     while (true)
@@ -57,6 +59,18 @@ InterpretResult VM::run()
             std::cout << pop() << "\n";
             return InterpretResult::INTERPRET_OK;
         }
+        case OpCode::OP_PLUS:
+            binary_op(this, '+');
+            break;
+        case OpCode::OP_SUBTRACT:
+            binary_op(this, '-');
+            break;
+        case OpCode::OP_MULTIPLY:
+            binary_op(this, '*');
+            break;
+        case OpCode::OP_DIVIDE:
+            binary_op(this, '/');
+            break;
         }
     }
 }
@@ -71,4 +85,28 @@ Value VM::pop()
 {
     stackTop--;
     return *stackTop;
+}
+
+static inline void binary_op(VM *vm, char ch)
+{
+    Value b = vm->pop();
+    Value a = vm->pop();
+
+    switch (ch)
+    {
+    case '+':
+        vm->push(a + b);
+        break;
+    case '-':
+        vm->push(a - b);
+        break;
+    case '*':
+        vm->push(a * b);
+        break;
+    case '/':
+        vm->push(a / b);
+        break;
+    default:
+        break;
+    }
 }
