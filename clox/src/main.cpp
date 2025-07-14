@@ -6,11 +6,6 @@
 #include "vm.h"
 #include "debug.h"
 
-static InterpretResult interpret(std::string line)
-{
-  return InterpretResult::INTERPRET_OK;
-}
-
 static void repl()
 {
   while (true)

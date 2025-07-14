@@ -1,3 +1,4 @@
+#include "compiler.h"
 #include "vm.h"
 #include "debug.h"
 
@@ -20,6 +21,12 @@ InterpretResult VM::interpret(Chunk *_chunk)
     chunk = _chunk;
     ip = chunk->code;
     return run();
+}
+
+InterpretResult VM::interpret(std::string source)
+{
+    compile(source);
+    return InterpretResult::INTERPRET_OK;
 }
 
 static inline void binary_op(VM *vm, char ch);

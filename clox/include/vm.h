@@ -30,6 +30,7 @@ public:
     void free();
     InterpretResult run();
     InterpretResult interpret(Chunk *_chunk);
+    InterpretResult interpret(std::string source);
     void push(Value value);
     Value pop();
 };
