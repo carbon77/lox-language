@@ -25,8 +25,21 @@ InterpretResult VM::interpret(Chunk *_chunk)
 
 InterpretResult VM::interpret(std::string source)
 {
-    compile(source);
-    return InterpretResult::INTERPRET_OK;
+    Chunk chunk;
+
+    try {
+        compile(source, &chunk);
+    } catch (const CompileException& e) {
+        chunk.free();
+        return InterpretResult::INTERPRET_COMPILE_ERROR;
+    }
+
+    this->chunk = &chunk;
+    this->ip = this->chunk->code;
+
+    InterpretResult result = run();
+    chunk.free();
+    return result;
 }
 
 static inline void binary_op(VM *vm, char ch);

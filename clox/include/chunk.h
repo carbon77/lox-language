@@ -4,6 +4,8 @@
 #include "common.h"
 #include "value.h"
 
+class CompileException {};
+
 enum class OpCode : uint8_t
 {
   OP_CONSTANT,
