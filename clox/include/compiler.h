@@ -6,6 +6,21 @@
 #include "scanner.h"
 #include <initializer_list>
 
+enum class Precendence : uint8_t
+{
+    NONE,
+    ASSIGNMENT, // =
+    OR,         // or
+    AND,        // and
+    EQUALITY,   // == !=
+    COMPARISON, // < > <= >=
+    TERM,       // + -
+    FACTOR,     // * /
+    UNARY,      // ! -
+    CALL,       // . ()
+    PRIMARY
+};
+
 class Parser
 {
 public:
@@ -48,8 +63,11 @@ private:
     void emit_constant(Value value);
     uint8_t make_constant(Value value);
 
+    void parse_precedence(Precendence precedence);
     void expression();
     void number();
+    void grouping();
+    void unary();
 };
 
 #endif

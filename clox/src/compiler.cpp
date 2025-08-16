@@ -130,10 +130,33 @@ uint8_t Compiler::make_constant(Value value)
 
 void Compiler::expression()
 {
+    parse_precedence(Precendence::ASSIGNMENT);
 }
 
 void Compiler::number()
 {
     double value = std::atof(parser.previous.start);
     emit_constant(value);
+}
+
+void Compiler::grouping()
+{
+    expression();
+    consume(TokenType::RIGHT_PAREN, "Exprect ')' after expression");
+}
+
+void Compiler::unary()
+{
+    TokenType operator_type = parser.previous.type;
+
+    parse_precedence(Precendence::UNARY);
+
+    switch (operator_type)
+    {
+    case TokenType::MINUS:
+        emit_byte(OpCode::OP_NEGATE);
+        break;
+    default:
+        return;
+    }
 }
