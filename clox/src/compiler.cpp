@@ -60,10 +60,6 @@ void Compiler::advance()
     }
 }
 
-void Compiler::expression()
-{
-}
-
 void Compiler::consume(TokenType token, std::string message)
 {
     if (parser.current.type == token)
@@ -114,4 +110,30 @@ void Compiler::emit_bytes(std::initializer_list<uint8_t> bytes)
 void Compiler::emit_return()
 {
     emit_byte(OpCode::OP_RETURN);
+}
+
+void Compiler::emit_constant(Value value)
+{
+    emit_bytes({static_cast<uint8_t>(OpCode::OP_CONSTANT), make_constant(value)});
+}
+
+uint8_t Compiler::make_constant(Value value)
+{
+    int constant = current_chunk()->add_constant(value);
+    if (constant > UINT8_MAX)
+    {
+        error("Too many constants in one chunk.");
+        return 0;
+    }
+    return constant;
+}
+
+void Compiler::expression()
+{
+}
+
+void Compiler::number()
+{
+    double value = std::atof(parser.previous.start);
+    emit_constant(value);
 }

@@ -35,7 +35,6 @@ private:
 
     void consume(TokenType token, std::string message);
     void advance();
-    void expression();
 
     void error(std::string message);
     void error_at_current(std::string message);
@@ -46,6 +45,11 @@ private:
     void emit_byte(OpCode byte);
     void emit_bytes(std::initializer_list<uint8_t> bytes);
     void emit_return();
+    void emit_constant(Value value);
+    uint8_t make_constant(Value value);
+
+    void expression();
+    void number();
 };
 
 #endif
