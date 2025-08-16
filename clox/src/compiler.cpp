@@ -130,7 +130,7 @@ uint8_t Compiler::make_constant(Value value)
 
 void Compiler::expression()
 {
-    parse_precedence(Precendence::ASSIGNMENT);
+    parse_precedence(Precedence::ASSIGNMENT);
 }
 
 void Compiler::number()
@@ -149,7 +149,7 @@ void Compiler::unary()
 {
     TokenType operator_type = parser.previous.type;
 
-    parse_precedence(Precendence::UNARY);
+    parse_precedence(Precedence::UNARY);
 
     switch (operator_type)
     {
@@ -158,5 +158,51 @@ void Compiler::unary()
         break;
     default:
         return;
+    }
+}
+
+void Compiler::binary()
+{
+    TokenType operator_type = parser.previous.type;
+
+    ParseRule *rule = get_rule(operator_type);
+    parse_precedence((Precedence)((int)rule->precedence + 1));
+
+    switch (operator_type)
+    {
+    case TokenType::PLUS:
+        emit_byte(OpCode::OP_PLUS);
+        break;
+    case TokenType::MINUS:
+        emit_byte(OpCode::OP_SUBTRACT);
+        break;
+    case TokenType::STAR:
+        emit_byte(OpCode::OP_MULTIPLY);
+        break;
+    case TokenType::SLASH:
+        emit_byte(OpCode::OP_DIVIDE);
+        break;
+    default:
+        return;
+    }
+}
+
+void Compiler::parse_precedence(Precedence precedence)
+{
+    advance();
+    ParseFn prefix_rule = get_rule(parser.previous.type)->prefix;
+    if (prefix_rule == nullptr)
+    {
+        error("Expect expression");
+        return;
+    }
+
+    (*this.*prefix_rule)();
+
+    while (precedence <= get_rule(parser.current.type)->precedence)
+    {
+        advance();
+        ParseFn infix_rule = get_rule(parser.current.type)->infix;
+        (*this.*infix_rule)();
     }
 }

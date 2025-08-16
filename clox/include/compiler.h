@@ -6,7 +6,7 @@
 #include "scanner.h"
 #include <initializer_list>
 
-enum class Precendence : uint8_t
+enum class Precedence : uint8_t
 {
     NONE,
     ASSIGNMENT, // =
@@ -19,6 +19,16 @@ enum class Precendence : uint8_t
     UNARY,      // ! -
     CALL,       // . ()
     PRIMARY
+};
+
+class Compiler;
+typedef void (Compiler::*ParseFn)();
+
+struct ParseRule
+{
+    ParseFn prefix;
+    ParseFn infix;
+    Precedence precedence;
 };
 
 class Parser
@@ -63,11 +73,59 @@ private:
     void emit_constant(Value value);
     uint8_t make_constant(Value value);
 
-    void parse_precedence(Precendence precedence);
+    void parse_precedence(Precedence precedence);
     void expression();
     void number();
     void grouping();
     void unary();
+    void binary();
+
+    ParseRule *get_rule(TokenType type)
+    {
+        return &rules[(int)type];
+    };
+
+    std::vector<ParseRule> rules = {
+        /* LEFT_PAREN */ {grouping, nullptr, Precedence::NONE},
+        /* RIGHT_PAREN */ {nullptr, nullptr, Precedence::NONE},
+        /* LEFT_BRACE */ {nullptr, nullptr, Precedence::NONE},
+        /* RIGHT_BRACE */ {nullptr, nullptr, Precedence::NONE},
+        /* COMMA */ {nullptr, nullptr, Precedence::NONE},
+        /* DOT */ {nullptr, nullptr, Precedence::NONE},
+        /* MINUS */ {unary, binary, Precedence::TERM},
+        /* PLUS */ {nullptr, binary, Precedence::TERM},
+        /* SEMICOLON */ {nullptr, nullptr, Precedence::NONE},
+        /* SLASH */ {nullptr, binary, Precedence::FACTOR},
+        /* STAR */ {nullptr, binary, Precedence::FACTOR},
+        /* BANG */ {nullptr, nullptr, Precedence::NONE},
+        /* BANG_EQUAL */ {nullptr, nullptr, Precedence::NONE},
+        /* EQUAL */ {nullptr, nullptr, Precedence::NONE},
+        /* EQUAL_EQUAL */ {nullptr, nullptr, Precedence::NONE},
+        /* GREATER */ {nullptr, nullptr, Precedence::NONE},
+        /* GREATER_EQUAL */ {nullptr, nullptr, Precedence::NONE},
+        /* LESS */ {nullptr, nullptr, Precedence::NONE},
+        /* LESS_EQUAL */ {nullptr, nullptr, Precedence::NONE},
+        /* IDENTIFIER */ {nullptr, nullptr, Precedence::NONE},
+        /* STRING */ {nullptr, nullptr, Precedence::NONE},
+        /* NUMBER */ {number, nullptr, Precedence::NONE},
+        /* AND */ {nullptr, nullptr, Precedence::NONE},
+        /* CLASS */ {nullptr, nullptr, Precedence::NONE},
+        /* ELSE */ {nullptr, nullptr, Precedence::NONE},
+        /* FALSE */ {nullptr, nullptr, Precedence::NONE},
+        /* FOR */ {nullptr, nullptr, Precedence::NONE},
+        /* FUN */ {nullptr, nullptr, Precedence::NONE},
+        /* IF */ {nullptr, nullptr, Precedence::NONE},
+        /* NIL */ {nullptr, nullptr, Precedence::NONE},
+        /* OR */ {nullptr, nullptr, Precedence::NONE},
+        /* PRINT */ {nullptr, nullptr, Precedence::NONE},
+        /* RETURN */ {nullptr, nullptr, Precedence::NONE},
+        /* SUPER */ {nullptr, nullptr, Precedence::NONE},
+        /* THIS */ {nullptr, nullptr, Precedence::NONE},
+        /* TRUE */ {nullptr, nullptr, Precedence::NONE},
+        /* VAR */ {nullptr, nullptr, Precedence::NONE},
+        /* WHILE */ {nullptr, nullptr, Precedence::NONE},
+        /* ERROR */ {nullptr, nullptr, Precedence::NONE},
+        /* END_OF_FILE */ {nullptr, nullptr, Precedence::NONE}};
 };
 
 #endif
