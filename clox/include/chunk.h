@@ -4,7 +4,9 @@
 #include "common.h"
 #include "value.h"
 
-class CompileException {};
+class CompileException
+{
+};
 
 enum class OpCode : uint8_t
 {

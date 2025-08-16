@@ -2,6 +2,16 @@
 #include "compiler.h"
 #include <iomanip>
 
+Compiler::Compiler(std::string source, Chunk *chunk) : scanner(source)
+{
+    compiling_chunk = chunk;
+}
+
+Compiler::~Compiler()
+{
+    emit_return();
+}
+
 void Compiler::error_at(Token *token, std::string message)
 {
     if (parser.panic_mode)
@@ -50,7 +60,7 @@ void Compiler::advance()
     }
 }
 
-static void expression()
+void Compiler::expression()
 {
 }
 
@@ -65,13 +75,8 @@ void Compiler::consume(TokenType token, std::string message)
     error_at_current(message);
 }
 
-void Compiler::compile(std::string source, Chunk *chunk)
+void Compiler::compile()
 {
-    scanner = Scanner(source);
-    parser = Parser();
-
-    parser.had_error = false;
-    parser.panic_mode = false;
 
     advance();
     expression();
@@ -81,4 +86,32 @@ void Compiler::compile(std::string source, Chunk *chunk)
     {
         throw CompileException();
     }
+}
+
+Chunk *Compiler::current_chunk()
+{
+    return compiling_chunk;
+}
+
+void Compiler::emit_byte(uint8_t byte)
+{
+    current_chunk()->write(byte, parser.previous.line);
+}
+
+void Compiler::emit_byte(OpCode byte)
+{
+    emit_byte(static_cast<uint8_t>(byte));
+}
+
+void Compiler::emit_bytes(std::initializer_list<uint8_t> bytes)
+{
+    for (uint8_t byte : bytes)
+    {
+        emit_byte(byte);
+    }
+}
+
+void Compiler::emit_return()
+{
+    emit_byte(OpCode::OP_RETURN);
 }

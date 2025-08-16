@@ -6,6 +6,8 @@
 #include "vm.h"
 #include "debug.h"
 
+VM vm;
+
 static void repl()
 {
   while (true)
@@ -15,7 +17,7 @@ static void repl()
 
     std::getline(std::cin, line);
 
-    interpret(line);
+    vm.interpret(line);
   }
 }
 
@@ -42,7 +44,7 @@ static std::string readFile(std::string path)
 static void runFile(std::string path)
 {
   std::string source = readFile(path);
-  InterpretResult result = interpret(source);
+  InterpretResult result = vm.interpret(source);
 
   std::cout << source;
 
@@ -54,8 +56,6 @@ static void runFile(std::string path)
 
 int main(int argc, char *argv[])
 {
-  VM vm;
-
   if (argc == 1)
   {
     repl();

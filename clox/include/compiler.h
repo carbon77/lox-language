@@ -3,10 +3,18 @@
 
 #include "common.h"
 #include "chunk.h"
+#include "scanner.h"
+#include <initializer_list>
 
 class Parser
 {
 public:
+    Parser()
+    {
+        had_error = false;
+        panic_mode = false;
+    };
+
     Token current;
     Token previous;
     bool had_error;
@@ -16,18 +24,28 @@ public:
 class Compiler
 {
 public:
-    void compile(std::string source, Chunk *chunk);
+    Compiler(std::string source, Chunk *chunk);
+    ~Compiler();
+    void compile();
 
 private:
     Parser parser;
     Scanner scanner;
+    Chunk *compiling_chunk;
 
     void consume(TokenType token, std::string message);
     void advance();
+    void expression();
 
     void error(std::string message);
     void error_at_current(std::string message);
     void error_at(Token *token, std::string message);
+
+    Chunk *current_chunk();
+    void emit_byte(uint8_t byte);
+    void emit_byte(OpCode byte);
+    void emit_bytes(std::initializer_list<uint8_t> bytes);
+    void emit_return();
 };
 
 #endif

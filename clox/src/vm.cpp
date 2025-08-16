@@ -26,10 +26,14 @@ InterpretResult VM::interpret(Chunk *_chunk)
 InterpretResult VM::interpret(std::string source)
 {
     Chunk chunk;
+    Compiler compiler(source, &chunk);
 
-    try {
-        compile(source, &chunk);
-    } catch (const CompileException& e) {
+    try
+    {
+        compiler.compile();
+    }
+    catch (const CompileException &e)
+    {
         chunk.free();
         return InterpretResult::INTERPRET_COMPILE_ERROR;
     }
