@@ -3,12 +3,14 @@
 #include "compiler.h"
 #include <iomanip>
 
-Compiler::Compiler(std::string source, Chunk *chunk) : scanner(source)
+Compiler::Compiler(std::string source, Chunk *chunk)
+    : scanner(std::move(source)),
+      parser(),
+      compiling_chunk(chunk)
 {
-    compiling_chunk = chunk;
 }
 
-Compiler::~Compiler()
+void Compiler::free()
 {
     emit_return();
 #ifdef DEBUG_PRINT_CODE
@@ -20,7 +22,7 @@ Compiler::~Compiler()
 #endif
 }
 
-void Compiler::error_at(Token *token, std::string message)
+void Compiler::error_at(Token *token, std::string_view message)
 {
     if (parser.panic_mode)
         return;
@@ -44,12 +46,12 @@ void Compiler::error_at(Token *token, std::string message)
     parser.had_error = true;
 }
 
-void Compiler::error_at_current(std::string message)
+void Compiler::error_at_current(std::string_view message)
 {
     error_at(&parser.current, message);
 }
 
-void Compiler::error(std::string message)
+void Compiler::error(std::string_view message)
 {
     error_at(&parser.previous, message);
 }
@@ -64,7 +66,7 @@ void Compiler::advance()
         if (parser.current.type != TokenType::ERROR)
             break;
 
-        error_at_current(parser.current.start);
+        error_at_current(std::string_view(parser.current.start, parser.current.length));
     }
 }
 
@@ -81,7 +83,6 @@ void Compiler::consume(TokenType token, std::string message)
 
 void Compiler::compile()
 {
-
     advance();
     expression();
     consume(TokenType::END_OF_FILE, "Expect end of expression.");
@@ -205,12 +206,12 @@ void Compiler::parse_precedence(Precedence precedence)
         return;
     }
 
-    (*this.*prefix_rule)();
+    (this->*prefix_rule)();
 
     while (precedence <= get_rule(parser.current.type)->precedence)
     {
         advance();
-        ParseFn infix_rule = get_rule(parser.current.type)->infix;
-        (*this.*infix_rule)();
+        ParseFn infix_rule = get_rule(parser.previous.type)->infix;
+        (this->*infix_rule)();
     }
 }

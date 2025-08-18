@@ -3,7 +3,7 @@
 
 #include "common.h"
 
-enum class TokenType
+enum class TokenType : uint8_t
 {
     // Single-character tokens.
     LEFT_PAREN,
@@ -66,6 +66,10 @@ public:
 
 class Scanner
 {
+public:
+    Scanner(std::string source);
+    Token scan_token();
+
 private:
     const char *start;
     const char *current;
@@ -84,10 +88,9 @@ private:
     Token identifier();
     TokenType identifier_type();
     TokenType check_keyword(int start, int length, const char *rest, TokenType type);
-
-public:
-    Scanner(std::string source);
-    Token scan_token();
 };
+
+std::string_view tokenTypeToString(TokenType type);
+void printToken(const Token *token);
 
 #endif

@@ -13,9 +13,12 @@ static void repl()
   while (true)
   {
     std::string line;
-    std::cout << "> ";
+    std::cout << "> " << std::flush;
 
-    std::getline(std::cin, line);
+    if (!std::getline(std::cin, line))
+      break;
+    if (line == "exit")
+      break;
 
     vm.interpret(line);
   }
@@ -35,7 +38,9 @@ static std::string readFile(std::string path)
   std::string line;
   while (std::getline(inputFile, line))
   {
-    source += line + '\n';
+    source += line;
+    if (!inputFile.eof())
+      source += '\n';
   }
 
   return source;
@@ -56,21 +61,22 @@ static void runFile(std::string path)
 
 int main(int argc, char *argv[])
 {
-  if (argc == 1)
+  try
   {
-    repl();
-  }
-  else if (argc == 2)
-  {
-    runFile(argv[1]);
-  }
-  else
-  {
-    std::cerr << "Usage: clox [path]\n";
-    exit(64);
-  }
+    if (argc == 1)
+      repl();
+    else if (argc == 2)
+      runFile(argv[1]);
+    else
+      throw std::runtime_error("Usage: clox [path]");
 
-  vm.free();
+    vm.free();
+  }
+  catch (std::exception &exp)
+  {
+    std::cerr << exp.what() << std::endl;
+    return 1;
+  }
 
   return 0;
 }

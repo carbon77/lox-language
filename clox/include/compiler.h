@@ -34,11 +34,8 @@ struct ParseRule
 class Parser
 {
 public:
-    Parser()
-    {
-        had_error = false;
-        panic_mode = false;
-    };
+    Parser() : had_error(false),
+               panic_mode(false) {};
 
     Token current;
     Token previous;
@@ -50,7 +47,7 @@ class Compiler
 {
 public:
     Compiler(std::string source, Chunk *chunk);
-    ~Compiler();
+    void free();
     void compile();
 
 private:
@@ -61,9 +58,9 @@ private:
     void consume(TokenType token, std::string message);
     void advance();
 
-    void error(std::string message);
-    void error_at_current(std::string message);
-    void error_at(Token *token, std::string message);
+    void error(std::string_view message);
+    void error_at_current(std::string_view message);
+    void error_at(Token *token, std::string_view message);
 
     Chunk *current_chunk();
     void emit_byte(uint8_t byte);

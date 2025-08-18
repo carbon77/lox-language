@@ -25,8 +25,8 @@ InterpretResult VM::interpret(Chunk *_chunk)
 
 InterpretResult VM::interpret(std::string source)
 {
-    Chunk chunk;
-    Compiler compiler(source, &chunk);
+    Chunk _chunk;
+    Compiler compiler(std::move(source), &_chunk);
 
     try
     {
@@ -34,15 +34,16 @@ InterpretResult VM::interpret(std::string source)
     }
     catch (const CompileException &e)
     {
-        chunk.free();
+        _chunk.free();
         return InterpretResult::INTERPRET_COMPILE_ERROR;
     }
 
-    this->chunk = &chunk;
-    this->ip = this->chunk->code;
+    compiler.free();
+    chunk = &_chunk;
+    ip = chunk->code;
 
     InterpretResult result = run();
-    chunk.free();
+    chunk->free();
     return result;
 }
 
