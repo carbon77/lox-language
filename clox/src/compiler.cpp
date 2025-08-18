@@ -145,7 +145,7 @@ void Compiler::expression()
 void Compiler::number()
 {
     double value = std::atof(parser.previous.start);
-    emit_constant(value);
+    emit_constant(Value(value));
 }
 
 void Compiler::grouping()

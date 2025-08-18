@@ -21,7 +21,7 @@ private:
     Chunk *chunk;
     uint8_t *ip;
     Value stack[STACK_MAX];
-    Value *stackTop;
+    Value *stack_top;
 
     void resetStack();
 
@@ -31,6 +31,8 @@ public:
     InterpretResult run();
     InterpretResult interpret(Chunk *_chunk);
     InterpretResult interpret(std::string source);
+
+    Value peek(int distance);
     void push(Value value);
     Value pop();
 };

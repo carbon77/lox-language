@@ -9,7 +9,7 @@ VM::VM()
 
 void VM::resetStack()
 {
-    stackTop = stack;
+    stack_top = stack;
 }
 
 void VM::free()
@@ -55,7 +55,7 @@ InterpretResult VM::run()
     {
 #ifdef DEBUG_TRACE_EXECUTION
         std::cout << "      ";
-        for (Value *slot = stack; slot < stackTop; slot++)
+        for (Value *slot = stack; slot < stack_top; slot++)
         {
             std::cout << "[ " << *slot << " ]";
         }
@@ -76,7 +76,13 @@ InterpretResult VM::run()
         }
         case OpCode::OP_NEGATE:
         {
-            push(-pop());
+            if (!peek(0).is_number())
+            {
+                throw std::runtime_error("Operand must be a number.");
+            }
+
+            double value = pop().get_number();
+            push(Value(-value));
             break;
         }
         case OpCode::OP_RETURN:
@@ -102,20 +108,30 @@ InterpretResult VM::run()
 
 void VM::push(Value value)
 {
-    *stackTop = value;
-    stackTop++;
+    *stack_top = value;
+    stack_top++;
 }
 
 Value VM::pop()
 {
-    stackTop--;
-    return *stackTop;
+    stack_top--;
+    return *stack_top;
+}
+
+Value VM::peek(int distance)
+{
+    return stack_top[-1 - distance];
 }
 
 static inline void binary_op(VM *vm, char ch)
 {
-    Value b = vm->pop();
-    Value a = vm->pop();
+    if (!vm->peek(0).is_number() || !vm->peek(1).is_number())
+    {
+        throw std::runtime_error("Operands must be numbers.");
+    }
+
+    double b = vm->pop().get_number();
+    double a = vm->pop().get_number();
 
     switch (ch)
     {

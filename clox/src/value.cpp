@@ -28,3 +28,21 @@ void ValueArray::free()
     capacity = 0;
     count = 0;
 }
+
+std::ostream &operator<<(std::ostream &os, const Value &value)
+{
+    if (value.is_boolean())
+    {
+        os << value.get_boolean();
+    }
+    else if (value.is_number())
+    {
+        os << value.get_number();
+    }
+    else if (value.is_nil())
+    {
+        os << "nil";
+    }
+
+    return os;
+}
