@@ -20,6 +20,10 @@ enum class OpCode : uint8_t
   OP_NIL,
   OP_TRUE,
   OP_FALSE,
+  OP_NOT,
+  OP_EQUAL,
+  OP_GREATER,
+  OP_LESS,
 };
 
 class Chunk

@@ -6,17 +6,18 @@
 
 class Value
 {
+public:
     enum class Type
     {
         BOOLEAN,
         NIL,
         NUMBER,
     };
+    Type type;
 
-public:
-    Value() : data(std::monostate{}) {}
-    Value(bool b) : data(b) {}
-    Value(double d) : data(d) {}
+    Value() : data(std::monostate{}), type(Type::NIL) {}
+    Value(bool b) : data(b), type(Type::BOOLEAN) {}
+    Value(double d) : data(d), type(Type::NUMBER) {}
 
     static Value nil() { return Value(); }
 
@@ -53,6 +54,20 @@ public:
     bool is_nil() const
     {
         return std::holds_alternative<std::monostate>(data);
+    }
+
+    bool is_truthy() const
+    {
+        if (is_number())
+        {
+            return get_number() == 0;
+        }
+        else if (is_nil())
+        {
+            return false;
+        }
+
+        return get_boolean();
     }
 
 private:

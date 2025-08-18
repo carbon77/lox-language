@@ -48,6 +48,7 @@ InterpretResult VM::interpret(std::string source)
 }
 
 static inline void binary_op(VM *vm, char ch);
+static inline bool values_equal(Value a, Value b);
 
 InterpretResult VM::run()
 {
@@ -111,6 +112,22 @@ InterpretResult VM::run()
         case OpCode::OP_FALSE:
             push(Value(false));
             break;
+        case OpCode::OP_NOT:
+            push(Value(!pop().is_truthy()));
+            break;
+        case OpCode::OP_EQUAL:
+        {
+            Value b = pop();
+            Value a = pop();
+            push(Value(values_equal(a, b)));
+            break;
+        }
+        case OpCode::OP_GREATER:
+            binary_op(this, '>');
+            break;
+        case OpCode::OP_LESS:
+            binary_op(this, '<');
+            break;
         }
     }
 }
@@ -130,6 +147,24 @@ Value VM::pop()
 Value VM::peek(int distance)
 {
     return stack_top[-1 - distance];
+}
+
+static inline bool values_equal(Value a, Value b)
+{
+    if (a.type != b.type)
+        return false;
+
+    switch (a.type)
+    {
+    case Value::Type::BOOLEAN:
+        return a.get_boolean() == b.get_boolean();
+    case Value::Type::NIL:
+        return true;
+    case Value::Type::NUMBER:
+        return a.get_number() == b.get_number();
+    default:
+        return false;
+    }
 }
 
 static inline void binary_op(VM *vm, char ch)
@@ -155,6 +190,12 @@ static inline void binary_op(VM *vm, char ch)
         break;
     case '/':
         vm->push(a / b);
+        break;
+    case '<':
+        vm->push(a < b);
+        break;
+    case '>':
+        vm->push(a > b);
         break;
     default:
         break;

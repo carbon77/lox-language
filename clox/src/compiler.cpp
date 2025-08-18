@@ -165,6 +165,9 @@ void Compiler::unary()
     case TokenType::MINUS:
         emit_byte(OpCode::OP_NEGATE);
         break;
+    case TokenType::BANG:
+        emit_byte(OpCode::OP_NOT);
+        break;
     default:
         return;
     }
@@ -191,6 +194,26 @@ void Compiler::binary()
     case TokenType::SLASH:
         emit_byte(OpCode::OP_DIVIDE);
         break;
+    case TokenType::EQUAL_EQUAL:
+        emit_byte(OpCode::OP_EQUAL);
+        break;
+    case TokenType::BANG_EQUAL:
+        emit_byte(OpCode::OP_EQUAL);
+        emit_byte(OpCode::OP_NOT);
+        break;
+    case TokenType::GREATER:
+        emit_byte(OpCode::OP_GREATER);
+        break;
+    case TokenType::GREATER_EQUAL:
+        emit_byte(OpCode::OP_LESS);
+        emit_byte(OpCode::OP_NOT);
+        break;
+    case TokenType::LESS:
+        emit_byte(OpCode::OP_LESS);
+        break;
+    case TokenType::LESS_EQUAL:
+        emit_byte(OpCode::OP_GREATER);
+        emit_byte(OpCode::OP_NOT);
     default:
         return;
     }
