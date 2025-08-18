@@ -13,5 +13,7 @@ add_executable(LoxLang
   src/value.cpp
   src/debug.cpp
   src/vm.cpp
+  src/scanner.cpp
+  src/compiler.cpp
   src/main.cpp
 )

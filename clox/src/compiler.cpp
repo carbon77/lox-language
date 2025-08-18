@@ -1,3 +1,4 @@
+#include "debug.h"
 #include "scanner.h"
 #include "compiler.h"
 #include <iomanip>
@@ -10,6 +11,13 @@ Compiler::Compiler(std::string source, Chunk *chunk) : scanner(source)
 Compiler::~Compiler()
 {
     emit_return();
+#ifdef DEBUG_PRINT_CODE
+    if (!parser.had_error)
+    {
+        Debugger debugger;
+        debugger.disassemble(current_chunk(), "code");
+    }
+#endif
 }
 
 void Compiler::error_at(Token *token, std::string message)
