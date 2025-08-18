@@ -180,7 +180,7 @@ void Compiler::binary()
     switch (operator_type)
     {
     case TokenType::PLUS:
-        emit_byte(OpCode::OP_PLUS);
+        emit_byte(OpCode::OP_ADD);
         break;
     case TokenType::MINUS:
         emit_byte(OpCode::OP_SUBTRACT);
@@ -190,6 +190,24 @@ void Compiler::binary()
         break;
     case TokenType::SLASH:
         emit_byte(OpCode::OP_DIVIDE);
+        break;
+    default:
+        return;
+    }
+}
+
+void Compiler::literal()
+{
+    switch (parser.previous.type)
+    {
+    case TokenType::NIL:
+        emit_byte(OpCode::OP_NIL);
+        break;
+    case TokenType::TRUE:
+        emit_byte(OpCode::OP_TRUE);
+        break;
+    case TokenType::FALSE:
+        emit_byte(OpCode::OP_FALSE);
         break;
     default:
         return;

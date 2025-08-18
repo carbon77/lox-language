@@ -76,6 +76,7 @@ private:
     void grouping();
     void unary();
     void binary();
+    void literal();
 
     ParseRule *get_rule(TokenType type)
     {
@@ -108,17 +109,17 @@ private:
         /* AND */ {nullptr, nullptr, Precedence::NONE},
         /* CLASS */ {nullptr, nullptr, Precedence::NONE},
         /* ELSE */ {nullptr, nullptr, Precedence::NONE},
-        /* FALSE */ {nullptr, nullptr, Precedence::NONE},
+        /* FALSE */ {&Compiler::literal, nullptr, Precedence::NONE},
         /* FOR */ {nullptr, nullptr, Precedence::NONE},
         /* FUN */ {nullptr, nullptr, Precedence::NONE},
         /* IF */ {nullptr, nullptr, Precedence::NONE},
-        /* NIL */ {nullptr, nullptr, Precedence::NONE},
+        /* NIL */ {&Compiler::literal, nullptr, Precedence::NONE},
         /* OR */ {nullptr, nullptr, Precedence::NONE},
         /* PRINT */ {nullptr, nullptr, Precedence::NONE},
         /* RETURN */ {nullptr, nullptr, Precedence::NONE},
         /* SUPER */ {nullptr, nullptr, Precedence::NONE},
         /* THIS */ {nullptr, nullptr, Precedence::NONE},
-        /* TRUE */ {nullptr, nullptr, Precedence::NONE},
+        /* TRUE */ {&Compiler::literal, nullptr, Precedence::NONE},
         /* VAR */ {nullptr, nullptr, Precedence::NONE},
         /* WHILE */ {nullptr, nullptr, Precedence::NONE},
         /* ERROR */ {nullptr, nullptr, Precedence::NONE},

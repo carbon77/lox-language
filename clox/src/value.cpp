@@ -33,7 +33,7 @@ std::ostream &operator<<(std::ostream &os, const Value &value)
 {
     if (value.is_boolean())
     {
-        os << value.get_boolean();
+        os << (value.get_boolean() ? "true" : "false");
     }
     else if (value.is_number())
     {

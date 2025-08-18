@@ -90,7 +90,7 @@ InterpretResult VM::run()
             std::cout << pop() << "\n";
             return InterpretResult::INTERPRET_OK;
         }
-        case OpCode::OP_PLUS:
+        case OpCode::OP_ADD:
             binary_op(this, '+');
             break;
         case OpCode::OP_SUBTRACT:
@@ -101,6 +101,15 @@ InterpretResult VM::run()
             break;
         case OpCode::OP_DIVIDE:
             binary_op(this, '/');
+            break;
+        case OpCode::OP_NIL:
+            push(Value::nil());
+            break;
+        case OpCode::OP_TRUE:
+            push(Value(true));
+            break;
+        case OpCode::OP_FALSE:
+            push(Value(false));
             break;
         }
     }
