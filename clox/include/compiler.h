@@ -58,9 +58,9 @@ private:
     void consume(TokenType token, std::string message);
     void advance();
 
-    void error(std::string_view message);
-    void error_at_current(std::string_view message);
-    void error_at(Token *token, std::string_view message);
+    void error(std::string message);
+    void error_at_current(std::string message);
+    void error_at(Token token, std::string message);
 
     Chunk *current_chunk();
     void emit_byte(uint8_t byte);

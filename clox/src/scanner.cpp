@@ -12,11 +12,12 @@ static bool is_alpha(char c)
            c == '_';
 }
 
-Scanner::Scanner(std::string source)
+Scanner::Scanner(std::string source) : source(source),
+                                       start(0),
+                                       current(0),
+                                       line(1),
+                                       column(0)
 {
-    start = source.c_str();
-    current = source.c_str();
-    line = 1;
 }
 
 Token Scanner::scan_token()
@@ -80,46 +81,67 @@ Token Scanner::scan_token()
         return string();
     }
 
+    std::cout << "scanning error = " << c << std::endl;
     return error_token("Unexpected character.");
+}
+
+void Scanner::print_tokens()
+{
+    while (true)
+    {
+        Token token = scan_token();
+        if (token.type == TokenType::END_OF_FILE)
+        {
+            return;
+        }
+        else if (token.type == TokenType::ERROR)
+        {
+            std::cout << "ERROR" << std::endl;
+            break;
+        }
+
+        printToken(token);
+    }
 }
 
 bool Scanner::is_at_end()
 {
-    return *current == '\0';
+    return current >= source.length();
 }
 
 Token Scanner::make_token(TokenType type)
 {
-    Token token;
-    token.type = type;
-    token.line = line;
-    token.start = start;
-    token.length = current - start;
-    return token;
+    return {
+        type,
+        source.substr(start, current - start),
+        line,
+        column};
 }
 
 Token Scanner::error_token(std::string message)
 {
-    Token token;
-    token.type = TokenType::ERROR;
-    token.line = line;
-    token.start = message.c_str();
-    token.length = message.length();
-    return token;
+    return {
+        TokenType::ERROR,
+        message,
+        line,
+        column};
 }
 
 char Scanner::advance()
 {
-    current++;
-    return current[-1];
+    column++;
+    return source[current++];
 }
 
 bool Scanner::match(char expected)
 {
-    if (is_at_end() || *current != expected)
+    if (is_at_end())
         return false;
 
-    current++;
+    if (source[current] != expected)
+        return false;
+
+    advance();
     return true;
 }
 
@@ -137,6 +159,7 @@ void Scanner::skip_whitespaces()
             break;
         case '\n':
             line++;
+            column = 0;
             advance();
             break;
         default:
@@ -147,14 +170,14 @@ void Scanner::skip_whitespaces()
 
 char Scanner::peek()
 {
-    return *current;
+    return source[current];
 }
 
 char Scanner::peek_next()
 {
-    if (is_at_end())
+    if (current + 1 >= source.length())
         return '\0';
-    return current[1];
+    return source[current + 1];
 }
 
 Token Scanner::string()
@@ -199,53 +222,53 @@ Token Scanner::identifier()
 
 TokenType Scanner::identifier_type()
 {
-    switch (start[0])
+    switch (source[start])
     {
     case 'a':
-        return check_keyword(1, 2, "nd", TokenType::AND);
+        return check_keyword(1, "nd", TokenType::AND);
     case 'c':
-        return check_keyword(1, 4, "lass", TokenType::CLASS);
+        return check_keyword(1, "lass", TokenType::CLASS);
     case 'e':
-        return check_keyword(1, 3, "lse", TokenType::ELSE);
+        return check_keyword(1, "lse", TokenType::ELSE);
     case 'i':
-        return check_keyword(1, 1, "f", TokenType::IF);
+        return check_keyword(1, "f", TokenType::IF);
     case 'n':
-        return check_keyword(1, 2, "il", TokenType::NIL);
+        return check_keyword(1, "il", TokenType::NIL);
     case 'o':
-        return check_keyword(1, 1, "r", TokenType::OR);
+        return check_keyword(1, "r", TokenType::OR);
     case 'p':
-        return check_keyword(1, 4, "rint", TokenType::PRINT);
+        return check_keyword(1, "rint", TokenType::PRINT);
     case 'r':
-        return check_keyword(1, 5, "eturn", TokenType::RETURN);
+        return check_keyword(1, "eturn", TokenType::RETURN);
     case 's':
-        return check_keyword(1, 4, "uper", TokenType::SUPER);
+        return check_keyword(1, "uper", TokenType::SUPER);
     case 'v':
-        return check_keyword(1, 2, "ar", TokenType::VAR);
+        return check_keyword(1, "ar", TokenType::VAR);
     case 'w':
-        return check_keyword(1, 4, "hile", TokenType::WHILE);
+        return check_keyword(1, "hile", TokenType::WHILE);
     case 'f':
         if (current - start > 1)
         {
-            switch (start[1])
+            switch (source[start + 1])
             {
             case 'a':
-                return check_keyword(2, 3, "lse", TokenType::FALSE);
+                return check_keyword(2, "lse", TokenType::FALSE);
             case 'o':
-                return check_keyword(2, 1, "r", TokenType::FOR);
+                return check_keyword(2, "r", TokenType::FOR);
             case 'u':
-                return check_keyword(2, 1, "n", TokenType::FUN);
+                return check_keyword(2, "n", TokenType::FUN);
             }
         }
         break;
     case 't':
         if (current - start > 1)
         {
-            switch (start[1])
+            switch (source[start + 1])
             {
             case 'h':
-                return check_keyword(2, 2, "is", TokenType::THIS);
+                return check_keyword(2, "is", TokenType::THIS);
             case 'r':
-                return check_keyword(2, 2, "ue", TokenType::TRUE);
+                return check_keyword(2, "ue", TokenType::TRUE);
             }
         }
         break;
@@ -254,19 +277,19 @@ TokenType Scanner::identifier_type()
     return TokenType::IDENTIFIER;
 }
 
-TokenType Scanner::check_keyword(int start, int length, const char *rest, TokenType type)
+TokenType Scanner::check_keyword(size_t offset, const std::string &rest, TokenType type)
 {
-    if (this->current - this->start == start + length &&
-        std::memcmp(this->start + start, rest, length) == 0)
+    size_t length = rest.length();
+    if (current - start == offset + length && source.compare(start + offset, length, rest) == 0)
     {
         return type;
     }
     return TokenType::IDENTIFIER;
 }
 
-std::string_view tokenTypeToString(TokenType type)
+std::string tokenTypeToString(TokenType type)
 {
-    static const std::unordered_map<TokenType, std::string_view> tokenNames = {
+    static const std::unordered_map<TokenType, std::string> tokenNames = {
         {TokenType::LEFT_PAREN, "LEFT_PAREN"},
         {TokenType::RIGHT_PAREN, "RIGHT_PAREN"},
         {TokenType::LEFT_BRACE, "LEFT_BRACE"},
@@ -315,9 +338,10 @@ std::string_view tokenTypeToString(TokenType type)
     return "UNKNOWN_TOKEN";
 }
 
-void printToken(const Token *token)
+inline void printToken(Token token)
 {
-    std::cout << "Token(type=" << tokenTypeToString(token->type)
-              << ", lexeme=\"" << std::string_view(token->start, token->length) << "\""
-              << ", line=" << token->line << ")\n";
+    std::cout << "Token(type=" << tokenTypeToString(token.type)
+              << ", lexeme=\"" << token.lexeme << "\""
+              << ", line=" << token.line
+              << ", column=" << token.column << ")\n";
 }

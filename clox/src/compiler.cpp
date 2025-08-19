@@ -4,7 +4,7 @@
 #include <iomanip>
 
 Compiler::Compiler(std::string source, Chunk *chunk)
-    : scanner(std::move(source)),
+    : scanner(source),
       parser(),
       compiling_chunk(chunk)
 {
@@ -22,38 +22,38 @@ void Compiler::free()
 #endif
 }
 
-void Compiler::error_at(Token *token, std::string_view message)
+void Compiler::error_at(Token token, std::string message)
 {
     if (parser.panic_mode)
         return;
     parser.panic_mode = true;
-    std::cerr << "[line " << token->line << "] Error.";
+    std::cerr << "(" << token.line << ":" << token.column << ") Error";
 
-    if (token->type == TokenType::END_OF_FILE)
+    if (token.type == TokenType::END_OF_FILE)
     {
         std::cerr << " at the end";
     }
-    else if (token->type == TokenType::ERROR)
+    else if (token.type == TokenType::ERROR)
     {
         // Nothing
     }
     else
     {
-        std::fprintf(stderr, " at '%.*s'", token->length, token->start);
+        std::cerr << " at '" << token.lexeme << "'";
     }
 
     std::cerr << ": " << message << std::endl;
     parser.had_error = true;
 }
 
-void Compiler::error_at_current(std::string_view message)
+void Compiler::error_at_current(std::string message)
 {
-    error_at(&parser.current, message);
+    error_at(parser.current, message);
 }
 
-void Compiler::error(std::string_view message)
+void Compiler::error(std::string message)
 {
-    error_at(&parser.previous, message);
+    error_at(parser.previous, message);
 }
 
 void Compiler::advance()
@@ -66,7 +66,7 @@ void Compiler::advance()
         if (parser.current.type != TokenType::ERROR)
             break;
 
-        error_at_current(std::string_view(parser.current.start, parser.current.length));
+        error_at_current(parser.current.lexeme);
     }
 }
 
@@ -144,14 +144,14 @@ void Compiler::expression()
 
 void Compiler::number()
 {
-    double value = std::atof(parser.previous.start);
+    double value = std::stod(parser.previous.lexeme);
     emit_constant(Value(value));
 }
 
 void Compiler::grouping()
 {
     expression();
-    consume(TokenType::RIGHT_PAREN, "Exprect ')' after expression");
+    consume(TokenType::RIGHT_PAREN, "Expect ')' after expression");
 }
 
 void Compiler::unary()
@@ -214,6 +214,7 @@ void Compiler::binary()
     case TokenType::LESS_EQUAL:
         emit_byte(OpCode::OP_GREATER);
         emit_byte(OpCode::OP_NOT);
+        break;
     default:
         return;
     }

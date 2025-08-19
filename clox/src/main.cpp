@@ -20,6 +20,7 @@ static void repl()
     if (line == "exit")
       break;
 
+    line.erase(line.find_last_not_of(" \t\n\r\f\v") + 1);
     vm.interpret(line);
   }
 }

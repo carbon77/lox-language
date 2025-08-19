@@ -26,7 +26,7 @@ InterpretResult VM::interpret(Chunk *_chunk)
 InterpretResult VM::interpret(std::string source)
 {
     Chunk _chunk;
-    Compiler compiler(std::move(source), &_chunk);
+    Compiler compiler(source, &_chunk);
 
     try
     {

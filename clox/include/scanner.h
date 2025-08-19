@@ -59,9 +59,9 @@ class Token
 {
 public:
     TokenType type;
-    const char *start;
-    int length;
+    std::string lexeme;
     int line;
+    int column;
 };
 
 class Scanner
@@ -69,11 +69,14 @@ class Scanner
 public:
     Scanner(std::string source);
     Token scan_token();
+    void print_tokens();
 
 private:
-    const char *start;
-    const char *current;
+    std::string source;
+    size_t start;
+    size_t current;
     int line;
+    int column;
 
     bool is_at_end();
     Token make_token(TokenType type);
@@ -87,10 +90,10 @@ private:
     Token number();
     Token identifier();
     TokenType identifier_type();
-    TokenType check_keyword(int start, int length, const char *rest, TokenType type);
+    TokenType check_keyword(size_t start, const std::string &rest, TokenType type);
 };
 
-std::string_view tokenTypeToString(TokenType type);
-void printToken(const Token *token);
+std::string tokenTypeToString(TokenType type);
+void printToken(const Token token);
 
 #endif
