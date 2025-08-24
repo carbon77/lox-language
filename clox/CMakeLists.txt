@@ -12,6 +12,7 @@ add_executable(LoxLang
   src/chunk.cpp
   src/object.cpp
   src/value.cpp
+  src/table.cpp
   src/debug.cpp
   src/vm.cpp
   src/scanner.cpp

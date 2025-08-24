@@ -1,7 +1,10 @@
 #include "debug.h"
 #include "scanner.h"
 #include "compiler.h"
+#include "vm.h"
 #include <iomanip>
+
+extern VM vm;
 
 Compiler::Compiler(std::string source, Chunk *chunk)
     : scanner(source),
@@ -241,7 +244,8 @@ void Compiler::literal()
 void Compiler::string()
 {
     std::string s = parser.previous.lexeme.substr(1, parser.previous.lexeme.length() - 2);
-    emit_constant(Value(new StringObject(s)));
+    StringObject *obj = vm.take_string(s);
+    emit_constant(Value(obj));
 }
 
 void Compiler::parse_precedence(Precedence precedence)

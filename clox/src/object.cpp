@@ -15,3 +15,13 @@ bool Object::equals(Object *b)
         return a_string == b_string;
     }
 }
+
+bool StringObject::operator==(const StringObject &other) const
+{
+    return str == other.str;
+}
+
+std::size_t StringObjectPtrHash::operator()(const StringObject *p) const
+{
+    return std::hash<std::string>{}(p->str);
+}

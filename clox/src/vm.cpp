@@ -187,10 +187,26 @@ Object *VM::allocate_object(Object::Type type)
     return obj;
 }
 
+StringObject *VM::take_string(std::string str)
+{
+    StringObject *obj = new StringObject(str);
+    StringObject *s;
+    if (auto iter = string_pool.find(obj); iter != string_pool.end())
+    {
+        s = *iter;
+    }
+    s = allocate_string(str);
+
+    delete obj;
+    return s;
+}
+
 StringObject *VM::allocate_string(std::string str)
 {
     StringObject *obj = (StringObject *)allocate_object(Object::Type::STRING);
     obj->str = str;
+
+    string_pool.insert(obj);
     return obj;
 }
 

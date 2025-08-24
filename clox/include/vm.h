@@ -13,6 +13,8 @@ enum class InterpretResult
     INTERPRET_RUNTIME_ERROR,
 };
 
+typedef std::unordered_set<StringObject *, StringObjectPtrHash, StringObjectPtrEqual> StringPool;
+
 class VM
 {
     friend class Chunk;
@@ -23,6 +25,7 @@ private:
     Value stack[STACK_MAX];
     Value *stack_top;
     Object *objects;
+    StringPool string_pool;
 
     void reset_stack();
     void free_objects();
@@ -39,6 +42,8 @@ public:
     Value pop();
 
     Object *allocate_object(Object::Type type);
+
+    StringObject *take_string(std::string str);
     StringObject *allocate_string(std::string str);
 };
 

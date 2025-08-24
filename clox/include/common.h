@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <string>
+#include <unordered_set>
 
 #define DEBUG_TRACE_EXECUTION
 #define DEBUG_PRINT_CODE

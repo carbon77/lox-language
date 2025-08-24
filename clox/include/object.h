@@ -26,12 +26,26 @@ public:
 
 class StringObject : public Object
 {
-    using Object::Object;
-
 public:
-    StringObject(std::string str) : str(std::move(str)) {}
-
     std::string str;
+
+    StringObject() {}
+    StringObject(const std::string &str) : str(str) {}
+
+    bool operator==(const StringObject &other) const;
+};
+
+struct StringObjectPtrHash
+{
+    std::size_t operator()(const StringObject *p) const;
+};
+
+struct StringObjectPtrEqual
+{
+    bool operator()(const StringObject *lhs, const StringObject *rhs) const
+    {
+        return lhs->str == rhs->str;
+    }
 };
 
 #endif
