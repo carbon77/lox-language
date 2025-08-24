@@ -189,16 +189,19 @@ Object *VM::allocate_object(Object::Type type)
 
 StringObject *VM::take_string(std::string str)
 {
-    StringObject *obj = new StringObject(str);
-    StringObject *s;
-    if (auto iter = string_pool.find(obj); iter != string_pool.end())
+    StringObject *temp_obj = new StringObject(str);
+    StringObject *new_str;
+    if (auto iter = string_pool.find(temp_obj); iter != string_pool.end())
     {
-        s = *iter;
+        new_str = *iter;
     }
-    s = allocate_string(str);
+    else
+    {
+        new_str = allocate_string(str);
+    }
 
-    delete obj;
-    return s;
+    delete temp_obj;
+    return new_str;
 }
 
 StringObject *VM::allocate_string(std::string str)
