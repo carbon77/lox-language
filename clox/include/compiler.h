@@ -77,6 +77,7 @@ private:
     void unary();
     void binary();
     void literal();
+    void string();
 
     ParseRule *get_rule(TokenType type)
     {
@@ -104,7 +105,7 @@ private:
         /* LESS */ {nullptr, &Compiler::binary, Precedence::COMPARISON},
         /* LESS_EQUAL */ {nullptr, &Compiler::binary, Precedence::COMPARISON},
         /* IDENTIFIER */ {nullptr, nullptr, Precedence::NONE},
-        /* STRING */ {nullptr, nullptr, Precedence::NONE},
+        /* STRING */ {&Compiler::string, nullptr, Precedence::NONE},
         /* NUMBER */ {&Compiler::number, nullptr, Precedence::NONE},
         /* AND */ {nullptr, nullptr, Precedence::NONE},
         /* CLASS */ {nullptr, nullptr, Precedence::NONE},

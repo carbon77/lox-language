@@ -22,8 +22,10 @@ private:
     uint8_t *ip;
     Value stack[STACK_MAX];
     Value *stack_top;
+    Object *objects;
 
-    void resetStack();
+    void reset_stack();
+    void free_objects();
 
 public:
     VM();
@@ -35,6 +37,9 @@ public:
     Value peek(int distance);
     void push(Value value);
     Value pop();
+
+    Object *allocate_object(Object::Type type);
+    StringObject *allocate_string(std::string str);
 };
 
 #endif

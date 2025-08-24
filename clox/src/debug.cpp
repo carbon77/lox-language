@@ -9,7 +9,7 @@ int Debugger::simple_instruction(std::string name, int offset)
 int Debugger::constant_instruction(std::string name, Chunk *chunk, int offset)
 {
   uint8_t constant = chunk->code[offset + 1];
-  std::cout << name << " " << constant << " '" << chunk->constants.values[constant].get_number() << "'\n";
+  std::cout << name << " " << constant << " '" << chunk->constants.values[constant] << "'\n";
   return offset + 2;
 }
 

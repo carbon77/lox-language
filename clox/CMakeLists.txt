@@ -10,6 +10,7 @@ include_directories(include)
 add_executable(LoxLang
   src/memory.cpp
   src/chunk.cpp
+  src/object.cpp
   src/value.cpp
   src/debug.cpp
   src/vm.cpp

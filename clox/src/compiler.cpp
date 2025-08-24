@@ -238,6 +238,12 @@ void Compiler::literal()
     }
 }
 
+void Compiler::string()
+{
+    std::string s = parser.previous.lexeme.substr(1, parser.previous.lexeme.length() - 2);
+    emit_constant(Value(new StringObject(s)));
+}
+
 void Compiler::parse_precedence(Precedence precedence)
 {
     advance();

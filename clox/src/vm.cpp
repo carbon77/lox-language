@@ -4,16 +4,29 @@
 
 VM::VM()
 {
-    resetStack();
+    reset_stack();
+    objects = nullptr;
 }
 
-void VM::resetStack()
+void VM::reset_stack()
 {
     stack_top = stack;
 }
 
 void VM::free()
 {
+    free_objects();
+}
+
+void VM::free_objects()
+{
+    Object *obj = objects;
+    while (obj != nullptr)
+    {
+        Object *next = obj->next;
+        delete obj;
+        obj = next;
+    }
 }
 
 InterpretResult VM::interpret(Chunk *_chunk)
@@ -48,7 +61,6 @@ InterpretResult VM::interpret(std::string source)
 }
 
 static inline void binary_op(VM *vm, char ch);
-static inline bool values_equal(Value a, Value b);
 
 InterpretResult VM::run()
 {
@@ -82,7 +94,7 @@ InterpretResult VM::run()
                 throw std::runtime_error("Operand must be a number.");
             }
 
-            double value = pop().get_number();
+            double value = pop().as_number();
             push(Value(-value));
             break;
         }
@@ -92,8 +104,25 @@ InterpretResult VM::run()
             return InterpretResult::INTERPRET_OK;
         }
         case OpCode::OP_ADD:
-            binary_op(this, '+');
+        {
+            if (peek(0).is_string() && peek(1).is_string())
+            {
+                std::string b = pop().as_string();
+                std::string a = pop().as_string();
+                push(allocate_string(a + b));
+            }
+            else if (peek(0).is_number() && peek(1).is_number())
+            {
+                double b = pop().as_number();
+                double a = pop().as_number();
+                push(Value(a + b));
+            }
+            else
+            {
+                throw std::runtime_error("Unsupported types for '+' operation");
+            }
             break;
+        }
         case OpCode::OP_SUBTRACT:
             binary_op(this, '-');
             break;
@@ -119,7 +148,7 @@ InterpretResult VM::run()
         {
             Value b = pop();
             Value a = pop();
-            push(Value(values_equal(a, b)));
+            push(Value(a.equals(b)));
             break;
         }
         case OpCode::OP_GREATER:
@@ -144,27 +173,30 @@ Value VM::pop()
     return *stack_top;
 }
 
+Object *VM::allocate_object(Object::Type type)
+{
+    Object *obj;
+    switch (type)
+    {
+    case Object::Type::STRING:
+        obj = new StringObject();
+    }
+
+    obj->next = objects;
+    objects = obj;
+    return obj;
+}
+
+StringObject *VM::allocate_string(std::string str)
+{
+    StringObject *obj = (StringObject *)allocate_object(Object::Type::STRING);
+    obj->str = str;
+    return obj;
+}
+
 Value VM::peek(int distance)
 {
     return stack_top[-1 - distance];
-}
-
-static inline bool values_equal(Value a, Value b)
-{
-    if (a.type != b.type)
-        return false;
-
-    switch (a.type)
-    {
-    case Value::Type::BOOLEAN:
-        return a.get_boolean() == b.get_boolean();
-    case Value::Type::NIL:
-        return true;
-    case Value::Type::NUMBER:
-        return a.get_number() == b.get_number();
-    default:
-        return false;
-    }
 }
 
 static inline void binary_op(VM *vm, char ch)
@@ -174,8 +206,8 @@ static inline void binary_op(VM *vm, char ch)
         throw std::runtime_error("Operands must be numbers.");
     }
 
-    double b = vm->pop().get_number();
-    double a = vm->pop().get_number();
+    double b = vm->pop().as_number();
+    double a = vm->pop().as_number();
 
     switch (ch)
     {
