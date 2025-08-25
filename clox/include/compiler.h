@@ -83,9 +83,16 @@ private:
     void string();
 
     void declaration();
+    void var_declaration();
     void statement();
     void print_statement();
     void expression_statement();
+    void variable();
+    void named_variable(Token name);
+
+    uint8_t parse_variable(const std::string &error_message);
+    void define_variable(uint8_t global);
+    uint8_t identifier_constant(Token *name);
 
     ParseRule *get_rule(TokenType type)
     {
@@ -112,7 +119,7 @@ private:
         /* GREATER_EQUAL */ {nullptr, &Compiler::binary, Precedence::COMPARISON},
         /* LESS */ {nullptr, &Compiler::binary, Precedence::COMPARISON},
         /* LESS_EQUAL */ {nullptr, &Compiler::binary, Precedence::COMPARISON},
-        /* IDENTIFIER */ {nullptr, nullptr, Precedence::NONE},
+        /* IDENTIFIER */ {&Compiler::variable, nullptr, Precedence::NONE},
         /* STRING */ {&Compiler::string, nullptr, Precedence::NONE},
         /* NUMBER */ {&Compiler::number, nullptr, Precedence::NONE},
         /* AND */ {nullptr, nullptr, Precedence::NONE},

@@ -26,6 +26,8 @@ enum class OpCode : uint8_t
   OP_LESS,
   OP_PRINT,
   OP_POP,
+  OP_DEFINE_GLOBAL,
+  OP_GET_GLOBAL,
 };
 
 class Chunk

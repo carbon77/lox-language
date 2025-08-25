@@ -293,10 +293,34 @@ void Compiler::string()
 
 void Compiler::declaration()
 {
-    statement();
+    if (match(TokenType::VAR))
+    {
+        var_declaration();
+    }
+    else
+    {
+        statement();
+    }
 
     if (parser.panic_mode)
         synchronize();
+}
+
+void Compiler::var_declaration()
+{
+    uint8_t global = parse_variable("Expect variable name.");
+
+    if (match(TokenType::EQUAL))
+    {
+        expression();
+    }
+    else
+    {
+        emit_byte(OpCode::OP_NIL);
+    }
+
+    consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
+    define_variable(global);
 }
 
 void Compiler::statement()
@@ -323,6 +347,33 @@ void Compiler::expression_statement()
     expression();
     consume(TokenType::SEMICOLON, "Expect ';' after expression.");
     emit_byte(OpCode::OP_POP);
+}
+
+void Compiler::variable()
+{
+    named_variable(parser.previous);
+}
+
+void Compiler::named_variable(Token name)
+{
+    uint8_t arg = identifier_constant(&name);
+    emit_bytes({static_cast<uint8_t>(OpCode::OP_GET_GLOBAL), arg});
+}
+
+uint8_t Compiler::parse_variable(const std::string &error_message)
+{
+    consume(TokenType::IDENTIFIER, error_message);
+    return identifier_constant(&parser.previous);
+}
+
+void Compiler::define_variable(uint8_t global)
+{
+    emit_bytes({static_cast<uint8_t>(OpCode::OP_DEFINE_GLOBAL), global});
+}
+
+uint8_t Compiler::identifier_constant(Token *name)
+{
+    return make_constant(vm.take_string(name->lexeme));
 }
 
 void Compiler::parse_precedence(Precedence precedence)

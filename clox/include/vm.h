@@ -13,6 +13,7 @@ enum class InterpretResult
     INTERPRET_RUNTIME_ERROR,
 };
 
+typedef std::unordered_map<StringObject *, Value, StringObjectPtrHash, StringObjectPtrEqual> Table;
 typedef std::unordered_set<StringObject *, StringObjectPtrHash, StringObjectPtrEqual> StringPool;
 
 class VM
@@ -26,6 +27,7 @@ private:
     Value *stack_top;
     Object *objects;
     StringPool string_pool;
+    Table globals;
 
     void reset_stack();
     void free_objects();
@@ -40,6 +42,9 @@ public:
     Value peek(int distance);
     void push(Value value);
     Value pop();
+
+    uint8_t read_byte();
+    Value read_constant();
 
     Object *allocate_object(Object::Type type);
 

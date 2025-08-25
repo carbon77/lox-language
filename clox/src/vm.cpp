@@ -163,6 +163,25 @@ InterpretResult VM::run()
         case OpCode::OP_POP:
             pop();
             break;
+        case OpCode::OP_DEFINE_GLOBAL:
+        {
+            StringObject *name = read_constant().as_string_object();
+            globals[name] = peek(0);
+            pop();
+            break;
+        }
+        case OpCode::OP_GET_GLOBAL:
+        {
+            StringObject *name = read_constant().as_string_object();
+
+            if (globals.find(name) == globals.end())
+            {
+                throw std::runtime_error("Undefined variable '" + name->str + "'.");
+            }
+
+            push(globals[name]);
+            break;
+        }
         }
     }
 }
@@ -177,6 +196,16 @@ Value VM::pop()
 {
     stack_top--;
     return *stack_top;
+}
+
+uint8_t VM::read_byte()
+{
+    return *ip++;
+}
+
+Value VM::read_constant()
+{
+    return chunk->constants.values[read_byte()];
 }
 
 Object *VM::allocate_object(Object::Type type)
