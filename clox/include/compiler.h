@@ -22,7 +22,7 @@ enum class Precedence : uint8_t
 };
 
 class Compiler;
-typedef void (Compiler::*ParseFn)();
+typedef void (Compiler::*ParseFn)(bool can_assign);
 
 struct ParseRule
 {
@@ -54,6 +54,7 @@ private:
     Parser parser;
     Scanner scanner;
     Chunk *compiling_chunk;
+    bool can_assign;
 
     void consume(TokenType token, std::string message);
     void advance();
@@ -75,20 +76,20 @@ private:
 
     void parse_precedence(Precedence precedence);
     void expression();
-    void number();
-    void grouping();
-    void unary();
-    void binary();
-    void literal();
-    void string();
+    void number(bool can_assign);
+    void grouping(bool can_assign);
+    void unary(bool can_assign);
+    void binary(bool can_assign);
+    void literal(bool can_assign);
+    void string(bool can_assign);
 
     void declaration();
     void var_declaration();
     void statement();
     void print_statement();
     void expression_statement();
-    void variable();
-    void named_variable(Token name);
+    void variable(bool can_assign);
+    void named_variable(Token name, bool can_assign);
 
     uint8_t parse_variable(const std::string &error_message);
     void define_variable(uint8_t global);

@@ -76,6 +76,8 @@ int Debugger::disassemble_instruction(Chunk *chunk, int offset)
     return simple_instruction("OP_DEFING_GLOBAL", offset);
   case OpCode::OP_GET_GLOBAL:
     return constant_instruction("OP_GET_GLOBAL", chunk, offset);
+  case OpCode::OP_SET_GLOBAL:
+    return constant_instruction("OP_SET_GLOBAL", chunk, offset);
   default:
     std::cout << "Unknown opcode " << instruction << "\n";
     return offset + 1;

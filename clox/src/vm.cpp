@@ -182,6 +182,15 @@ InterpretResult VM::run()
             push(globals[name]);
             break;
         }
+        case OpCode::OP_SET_GLOBAL:
+        {
+            StringObject *name = read_constant().as_string_object();
+            if (globals.find(name) == globals.end())
+            {
+                throw std::runtime_error("Undefined variable '" + name->str + "'.");
+            }
+            break;
+        }
         }
     }
 }

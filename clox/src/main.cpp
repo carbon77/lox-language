@@ -52,8 +52,6 @@ static void runFile(std::string path)
   std::string source = readFile(path);
   InterpretResult result = vm.interpret(source);
 
-  std::cout << source;
-
   if (result == InterpretResult::INTERPRET_COMPILE_ERROR)
     exit(65);
   if (result == InterpretResult::INTERPRET_RUNTIME_ERROR)

@@ -28,6 +28,7 @@ enum class OpCode : uint8_t
   OP_POP,
   OP_DEFINE_GLOBAL,
   OP_GET_GLOBAL,
+  OP_SET_GLOBAL,
 };
 
 class Chunk
