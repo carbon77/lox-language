@@ -57,10 +57,13 @@ private:
 
     void consume(TokenType token, std::string message);
     void advance();
+    bool match(TokenType type);
+    bool check(TokenType type);
 
     void error(std::string message);
     void error_at_current(std::string message);
     void error_at(Token token, std::string message);
+    void synchronize();
 
     Chunk *current_chunk();
     void emit_byte(uint8_t byte);
@@ -78,6 +81,11 @@ private:
     void binary();
     void literal();
     void string();
+
+    void declaration();
+    void statement();
+    void print_statement();
+    void expression_statement();
 
     ParseRule *get_rule(TokenType type)
     {

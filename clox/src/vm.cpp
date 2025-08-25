@@ -99,10 +99,7 @@ InterpretResult VM::run()
             break;
         }
         case OpCode::OP_RETURN:
-        {
-            std::cout << pop() << "\n";
             return InterpretResult::INTERPRET_OK;
-        }
         case OpCode::OP_ADD:
         {
             if (peek(0).is_string() && peek(1).is_string())
@@ -156,6 +153,15 @@ InterpretResult VM::run()
             break;
         case OpCode::OP_LESS:
             binary_op(this, '<');
+            break;
+        case OpCode::OP_PRINT:
+        {
+            Value value = pop();
+            std::cout << value << std::endl;
+            break;
+        }
+        case OpCode::OP_POP:
+            pop();
             break;
         }
     }

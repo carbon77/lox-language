@@ -68,6 +68,10 @@ int Debugger::disassemble_instruction(Chunk *chunk, int offset)
     return simple_instruction("OP_GREATER", offset);
   case OpCode::OP_LESS:
     return simple_instruction("OP_LESS", offset);
+  case OpCode::OP_PRINT:
+    return simple_instruction("OP_PRINT", offset);
+  case OpCode::OP_POP:
+    return simple_instruction("OP_POP", offset);
   default:
     std::cout << "Unknown opcode " << instruction << "\n";
     return offset + 1;

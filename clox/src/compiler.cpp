@@ -49,6 +49,33 @@ void Compiler::error_at(Token token, std::string message)
     parser.had_error = true;
 }
 
+void Compiler::synchronize()
+{
+    parser.panic_mode = false;
+
+    while (parser.current.type != TokenType::END_OF_FILE)
+    {
+        if (parser.previous.type == TokenType::SEMICOLON)
+            return;
+
+        switch (parser.current.type)
+        {
+        case TokenType::CLASS:
+        case TokenType::FUN:
+        case TokenType::VAR:
+        case TokenType::FOR:
+        case TokenType::IF:
+        case TokenType::WHILE:
+        case TokenType::PRINT:
+        case TokenType::RETURN:
+            return;
+
+        default:
+            break;
+        }
+    }
+}
+
 void Compiler::error_at_current(std::string message)
 {
     error_at(parser.current, message);
@@ -73,6 +100,19 @@ void Compiler::advance()
     }
 }
 
+bool Compiler::check(TokenType type)
+{
+    return parser.current.type == type;
+}
+
+bool Compiler::match(TokenType type)
+{
+    if (!check(type))
+        return false;
+    advance();
+    return true;
+}
+
 void Compiler::consume(TokenType token, std::string message)
 {
     if (parser.current.type == token)
@@ -87,8 +127,11 @@ void Compiler::consume(TokenType token, std::string message)
 void Compiler::compile()
 {
     advance();
-    expression();
-    consume(TokenType::END_OF_FILE, "Expect end of expression.");
+
+    while (!match(TokenType::END_OF_FILE))
+    {
+        declaration();
+    }
 
     if (parser.had_error)
     {
@@ -246,6 +289,40 @@ void Compiler::string()
     std::string s = parser.previous.lexeme.substr(1, parser.previous.lexeme.length() - 2);
     StringObject *obj = vm.take_string(s);
     emit_constant(Value(obj));
+}
+
+void Compiler::declaration()
+{
+    statement();
+
+    if (parser.panic_mode)
+        synchronize();
+}
+
+void Compiler::statement()
+{
+    if (match(TokenType::PRINT))
+    {
+        print_statement();
+    }
+    else
+    {
+        expression_statement();
+    }
+}
+
+void Compiler::print_statement()
+{
+    expression();
+    consume(TokenType::SEMICOLON, "Expect ';' after value.");
+    emit_byte(OpCode::OP_PRINT);
+}
+
+void Compiler::expression_statement()
+{
+    expression();
+    consume(TokenType::SEMICOLON, "Expect ';' after expression.");
+    emit_byte(OpCode::OP_POP);
 }
 
 void Compiler::parse_precedence(Precedence precedence)
