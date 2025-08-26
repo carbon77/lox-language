@@ -16,6 +16,9 @@ enum class InterpretResult
 typedef std::unordered_map<StringObject *, Value, StringObjectPtrHash, StringObjectPtrEqual> Table;
 typedef std::unordered_set<StringObject *, StringObjectPtrHash, StringObjectPtrEqual> StringPool;
 
+typedef std::function<void()> OpCodeHandler;
+typedef std::unordered_map<OpCode, OpCodeHandler> OpCodeHandlers;
+
 class VM
 {
     friend class Chunk;
@@ -28,6 +31,7 @@ private:
     Object *objects;
     StringPool string_pool;
     Table globals;
+    OpCodeHandlers handlers;
 
     void reset_stack();
     void free_objects();

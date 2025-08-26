@@ -2,10 +2,105 @@
 #include "vm.h"
 #include "debug.h"
 
+static inline void binary_op(VM *vm, char ch);
+
 VM::VM()
 {
     reset_stack();
     objects = nullptr;
+
+    handlers = {
+        {OpCode::OP_CONSTANT, [this]()
+         {
+             Value constant = chunk->constants.values[*ip++];
+             push(constant);
+         }},
+        {OpCode::OP_NEGATE, [this]()
+         {
+             if (!peek(0).is_number())
+             {
+                 throw std::runtime_error("Operand must be a number.");
+             }
+
+             double value = pop().as_number();
+             push(Value(-value));
+         }},
+        {OpCode::OP_ADD, [this]()
+         {
+             if (peek(0).is_string() && peek(1).is_string())
+             {
+                 std::string b = pop().as_string();
+                 std::string a = pop().as_string();
+                 push(allocate_string(a + b));
+             }
+             else if (peek(0).is_number() && peek(1).is_number())
+             {
+                 double b = pop().as_number();
+                 double a = pop().as_number();
+                 push(Value(a + b));
+             }
+             else
+             {
+                 throw std::runtime_error("Unsupported types for '+' operation");
+             }
+         }},
+        {OpCode::OP_SUBTRACT, [this]()
+         { binary_op(this, '-'); }},
+        {OpCode::OP_MULTIPLY, [this]()
+         { binary_op(this, '*'); }},
+        {OpCode::OP_DIVIDE, [this]()
+         { binary_op(this, '/'); }},
+        {OpCode::OP_GREATER, [this]()
+         { binary_op(this, '>'); }},
+        {OpCode::OP_LESS, [this]()
+         { binary_op(this, '<'); }},
+        {OpCode::OP_NIL, [this]()
+         { push(Value::nil()); }},
+        {OpCode::OP_TRUE, [this]()
+         { push(Value(true)); }},
+        {OpCode::OP_FALSE, [this]()
+         { push(Value(false)); }},
+        {OpCode::OP_NOT, [this]()
+         { push(Value(!pop().is_truthy())); }},
+        {OpCode::OP_EQUAL, [this]()
+         {
+             Value b = pop();
+             Value a = pop();
+             push(Value(a.equals(b)));
+         }},
+        {OpCode::OP_PRINT, [this]()
+         {
+             Value value = pop();
+             std::cout << value << std::endl;
+         }},
+        {OpCode::OP_POP, [this]()
+         { pop(); }},
+        {OpCode::OP_DEFINE_GLOBAL, [this]()
+         {
+             StringObject *name = read_constant().as_string_object();
+             globals[name] = peek(0);
+             pop();
+         }},
+        {OpCode::OP_GET_GLOBAL, [this]()
+         {
+             StringObject *name = read_constant().as_string_object();
+
+             if (globals.find(name) == globals.end())
+             {
+                 throw std::runtime_error("Undefined variable '" + name->str + "'.");
+             }
+
+             push(globals[name]);
+         }},
+        {OpCode::OP_SET_GLOBAL, [this]()
+         {
+             StringObject *name = read_constant().as_string_object();
+             if (globals.find(name) == globals.end())
+             {
+                 throw std::runtime_error("Undefined variable '" + name->str + "'.");
+             }
+         }},
+    };
 }
 
 void VM::reset_stack()
@@ -60,8 +155,6 @@ InterpretResult VM::interpret(std::string source)
     return result;
 }
 
-static inline void binary_op(VM *vm, char ch);
-
 InterpretResult VM::run()
 {
     while (true)
@@ -78,120 +171,13 @@ InterpretResult VM::run()
         debugger.disassemble_instruction(chunk, (int)(ip - chunk->code));
 #endif
         uint8_t instruction = *ip++;
-
-        switch (static_cast<OpCode>(instruction))
+        OpCode op_code = static_cast<OpCode>(instruction);
+        if (op_code == OpCode::OP_RETURN)
         {
-        case OpCode::OP_CONSTANT:
-        {
-            Value constant = chunk->constants.values[*ip++];
-            push(constant);
-            break;
-        }
-        case OpCode::OP_NEGATE:
-        {
-            if (!peek(0).is_number())
-            {
-                throw std::runtime_error("Operand must be a number.");
-            }
-
-            double value = pop().as_number();
-            push(Value(-value));
-            break;
-        }
-        case OpCode::OP_RETURN:
             return InterpretResult::INTERPRET_OK;
-        case OpCode::OP_ADD:
-        {
-            if (peek(0).is_string() && peek(1).is_string())
-            {
-                std::string b = pop().as_string();
-                std::string a = pop().as_string();
-                push(allocate_string(a + b));
-            }
-            else if (peek(0).is_number() && peek(1).is_number())
-            {
-                double b = pop().as_number();
-                double a = pop().as_number();
-                push(Value(a + b));
-            }
-            else
-            {
-                throw std::runtime_error("Unsupported types for '+' operation");
-            }
-            break;
         }
-        case OpCode::OP_SUBTRACT:
-            binary_op(this, '-');
-            break;
-        case OpCode::OP_MULTIPLY:
-            binary_op(this, '*');
-            break;
-        case OpCode::OP_DIVIDE:
-            binary_op(this, '/');
-            break;
-        case OpCode::OP_NIL:
-            push(Value::nil());
-            break;
-        case OpCode::OP_TRUE:
-            push(Value(true));
-            break;
-        case OpCode::OP_FALSE:
-            push(Value(false));
-            break;
-        case OpCode::OP_NOT:
-            push(Value(!pop().is_truthy()));
-            break;
-        case OpCode::OP_EQUAL:
-        {
-            Value b = pop();
-            Value a = pop();
-            push(Value(a.equals(b)));
-            break;
-        }
-        case OpCode::OP_GREATER:
-            binary_op(this, '>');
-            break;
-        case OpCode::OP_LESS:
-            binary_op(this, '<');
-            break;
-        case OpCode::OP_PRINT:
-        {
-            Value value = pop();
-            std::cout << value << std::endl;
-            break;
-        }
-        case OpCode::OP_POP:
-            pop();
-            break;
-        case OpCode::OP_DEFINE_GLOBAL:
-        {
-            StringObject *name = read_constant().as_string_object();
-            globals[name] = peek(0);
-            pop();
-            break;
-        }
-        case OpCode::OP_GET_GLOBAL:
-        {
-            StringObject *name = read_constant().as_string_object();
 
-            if (globals.find(name) == globals.end())
-            {
-                throw std::runtime_error("Undefined variable '" + name->str + "'.");
-            }
-
-            push(globals[name]);
-            break;
-        }
-        case OpCode::OP_SET_GLOBAL:
-        {
-            StringObject *name = read_constant().as_string_object();
-            if (globals.find(name) == globals.end())
-            {
-                throw std::runtime_error("Undefined variable '" + name->str + "'.");
-            }
-            break;
-        }
-        }
+        handlers[op_code]();
     }
 }
 

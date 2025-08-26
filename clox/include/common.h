@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <string>
 #include <unordered_set>
+#include <functional>
 
 #define DEBUG_TRACE_EXECUTION
 // #define DEBUG_PRINT_CODE
