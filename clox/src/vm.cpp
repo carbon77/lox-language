@@ -84,7 +84,6 @@ VM::VM()
         {OpCode::OP_GET_GLOBAL, [this]()
          {
              StringObject *name = read_constant().as_string_object();
-
              if (globals.find(name) == globals.end())
              {
                  throw std::runtime_error("Undefined variable '" + name->str + "'.");
@@ -97,8 +96,21 @@ VM::VM()
              StringObject *name = read_constant().as_string_object();
              if (globals.find(name) == globals.end())
              {
+                 globals.erase(name);
                  throw std::runtime_error("Undefined variable '" + name->str + "'.");
              }
+
+             globals[name] = peek(0);
+         }},
+        {OpCode::OP_GET_LOCAL, [this]()
+         {
+             uint8_t slot = read_byte();
+             push(stack[slot]);
+         }},
+        {OpCode::OP_SET_LOCAL, [this]()
+         {
+             uint8_t slot = read_byte();
+             stack[slot] = peek(0);
          }},
     };
 }

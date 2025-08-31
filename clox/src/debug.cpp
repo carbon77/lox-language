@@ -6,6 +6,13 @@ int Debugger::simple_instruction(std::string name, int offset)
   return offset + 1;
 }
 
+int Debugger::byte_instruction(std::string name, Chunk *chunk, int offset)
+{
+  uint8_t slot = chunk->code[offset + 1];
+  std::cout << name << " " << slot << std::endl;
+  return offset + 2;
+}
+
 int Debugger::constant_instruction(std::string name, Chunk *chunk, int offset)
 {
   uint8_t constant = chunk->code[offset + 1];
@@ -78,6 +85,10 @@ int Debugger::disassemble_instruction(Chunk *chunk, int offset)
     return constant_instruction("OP_GET_GLOBAL", chunk, offset);
   case OpCode::OP_SET_GLOBAL:
     return constant_instruction("OP_SET_GLOBAL", chunk, offset);
+  case OpCode::OP_SET_LOCAL:
+    return byte_instruction("OP_SET_LOCAL", chunk, offset);
+  case OpCode::OP_GET_LOCAL:
+    return byte_instruction("OP_GET_LOCAL", chunk, offset);
   default:
     std::cout << "Unknown opcode " << instruction << "\n";
     return offset + 1;

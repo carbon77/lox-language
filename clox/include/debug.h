@@ -12,6 +12,7 @@ class Debugger
 private:
     int constant_instruction(std::string name, Chunk *chunk, int offset);
     int simple_instruction(std::string name, int offset);
+    int byte_instruction(std::string name, Chunk *chunk, int offset);
 
 public:
     void disassemble(Chunk *chunk, std::string name);

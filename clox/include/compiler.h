@@ -43,6 +43,18 @@ public:
     bool panic_mode;
 };
 
+struct Local
+{
+    Token name;
+    int depth;
+};
+
+struct Locals
+{
+    std::vector<Local> locals;
+    int scope_depth;
+};
+
 class Compiler
 {
 public:
@@ -55,6 +67,7 @@ private:
     Scanner scanner;
     Chunk *compiling_chunk;
     bool can_assign;
+    Locals *current;
 
     void consume(TokenType token, std::string message);
     void advance();
@@ -83,6 +96,10 @@ private:
     void literal(bool can_assign);
     void string(bool can_assign);
 
+    void block();
+    void begin_scope();
+    void end_scope();
+
     void declaration();
     void var_declaration();
     void statement();
@@ -91,8 +108,12 @@ private:
     void variable(bool can_assign);
     void named_variable(Token name, bool can_assign);
 
+    void add_local(Token name);
+    uint8_t resolve_local(Locals *locals, Token *name);
     uint8_t parse_variable(const std::string &error_message);
+    void mark_initialized();
     void define_variable(uint8_t global);
+    void declare_variable();
     uint8_t identifier_constant(Token *name);
 
     ParseRule *get_rule(TokenType type)

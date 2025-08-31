@@ -5,12 +5,15 @@
 #include <iomanip>
 
 extern VM vm;
+static const int MAX_LOCAL_COUNT = UINT8_MAX + 1;
 
 Compiler::Compiler(std::string source, Chunk *chunk)
     : scanner(source),
       parser(),
       compiling_chunk(chunk)
 {
+    current->locals.reserve(MAX_LOCAL_COUNT);
+    current->scope_depth = 0;
 }
 
 void Compiler::free()
@@ -291,11 +294,43 @@ void Compiler::string(bool can_assign)
     emit_constant(Value(obj));
 }
 
+void Compiler::block()
+{
+    while (!check(TokenType::RIGHT_BRACE) && !check(TokenType::END_OF_FILE))
+    {
+        declaration();
+    }
+
+    consume(TokenType::RIGHT_BRACE, "Exoect '}' after block.");
+}
+
+void Compiler::begin_scope()
+{
+    current->scope_depth++;
+}
+
+void Compiler::end_scope()
+{
+    current->scope_depth--;
+
+    while (current->locals.size() > 0 && current->locals[current->locals.size() - 1].depth > current->scope_depth)
+    {
+        emit_byte(OpCode::OP_POP);
+        current->locals.pop_back();
+    }
+}
+
 void Compiler::declaration()
 {
     if (match(TokenType::VAR))
     {
         var_declaration();
+    }
+    else if (match(TokenType::LEFT_BRACE))
+    {
+        begin_scope();
+        block();
+        end_scope();
     }
     else
     {
@@ -356,28 +391,109 @@ void Compiler::variable(bool can_assign)
 
 void Compiler::named_variable(Token name, bool can_assign)
 {
-    uint8_t arg = identifier_constant(&name);
+    OpCode getOp, setOp;
+    uint8_t arg = resolve_local(current, &name);
+    if (arg != -1)
+    {
+        getOp = OpCode::OP_GET_LOCAL;
+        setOp = OpCode::OP_SET_LOCAL;
+    }
+    else
+    {
+        getOp = OpCode::OP_GET_GLOBAL;
+        setOp = OpCode::OP_SET_GLOBAL;
+    }
 
     if (can_assign && match(TokenType::EQUAL))
     {
         expression();
-        emit_bytes({static_cast<uint8_t>(OpCode::OP_SET_GLOBAL), arg});
+        emit_bytes({static_cast<uint8_t>(setOp), arg});
     }
     else
     {
-        emit_bytes({static_cast<uint8_t>(OpCode::OP_GET_GLOBAL), arg});
+        emit_bytes({static_cast<uint8_t>(getOp), arg});
     }
+}
+
+void Compiler::add_local(Token name)
+{
+    if (current->locals.size() == MAX_LOCAL_COUNT)
+    {
+        error("Too many local variables in function.");
+        return;
+    }
+
+    Local *local = &current->locals[current->locals.size()];
+    local->name = name;
+    local->depth = -1;
+}
+
+uint8_t Compiler::resolve_local(Locals *locals, Token *name)
+{
+    for (int i = locals->locals.size() - 1; i >= 0; i++)
+    {
+        Local *local = &locals->locals[i];
+        if (name->lexeme == local->name.lexeme)
+        {
+            if (local->depth == -1)
+            {
+                error("Can't read local variable in its own initializer.");
+            }
+            return i;
+        }
+    }
+    return -1;
 }
 
 uint8_t Compiler::parse_variable(const std::string &error_message)
 {
     consume(TokenType::IDENTIFIER, error_message);
+
+    declare_variable();
+    if (current->scope_depth > 0)
+        return 0;
+
     return identifier_constant(&parser.previous);
 }
 
 void Compiler::define_variable(uint8_t global)
 {
+    if (current->scope_depth > 0)
+    {
+        mark_initialized();
+        return;
+    }
+
     emit_bytes({static_cast<uint8_t>(OpCode::OP_DEFINE_GLOBAL), global});
+}
+
+void Compiler::mark_initialized()
+{
+    current->locals[current->locals.size() - 1].depth = current->scope_depth;
+}
+
+void Compiler::declare_variable()
+{
+    if (current->scope_depth == 0)
+        return;
+
+    Token *name = &parser.previous;
+
+    for (int i = current->locals.size() - 1; i >= 0; i--)
+    {
+        Local *local = &current->locals[i];
+        if (local->depth != -1 && local->depth < current->scope_depth)
+        {
+            break;
+        }
+
+        if (name->lexeme == local->name.lexeme)
+        {
+            error("Already variable with this name in this scope.");
+        }
+    }
+
+    add_local(*name);
 }
 
 uint8_t Compiler::identifier_constant(Token *name)
