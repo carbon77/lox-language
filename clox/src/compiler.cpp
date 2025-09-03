@@ -326,12 +326,6 @@ void Compiler::declaration()
     {
         var_declaration();
     }
-    else if (match(TokenType::LEFT_BRACE))
-    {
-        begin_scope();
-        block();
-        end_scope();
-    }
     else
     {
         statement();
@@ -355,7 +349,7 @@ void Compiler::var_declaration()
     }
 
     consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
-    define_variable(global);
+    define_global_variable(global);
 }
 
 void Compiler::statement()
@@ -363,6 +357,12 @@ void Compiler::statement()
     if (match(TokenType::PRINT))
     {
         print_statement();
+    }
+    else if (match(TokenType::LEFT_BRACE))
+    {
+        begin_scope();
+        block();
+        end_scope();
     }
     else
     {
@@ -400,6 +400,7 @@ void Compiler::named_variable(Token name, bool can_assign)
     }
     else
     {
+        arg = identifier_constant(&name);
         getOp = OpCode::OP_GET_GLOBAL;
         setOp = OpCode::OP_SET_GLOBAL;
     }
@@ -423,14 +424,13 @@ void Compiler::add_local(Token name)
         return;
     }
 
-    Local *local = &current->locals[current->locals.size()];
-    local->name = name;
-    local->depth = -1;
+    Local local = {name, -1};
+    current->locals.push_back(local);
 }
 
 uint8_t Compiler::resolve_local(Locals *locals, Token *name)
 {
-    for (int i = locals->locals.size() - 1; i >= 0; i++)
+    for (int i = locals->locals.size() - 1; i >= 0; i--)
     {
         Local *local = &locals->locals[i];
         if (name->lexeme == local->name.lexeme)
@@ -449,14 +449,14 @@ uint8_t Compiler::parse_variable(const std::string &error_message)
 {
     consume(TokenType::IDENTIFIER, error_message);
 
-    declare_variable();
+    declare_local_variable();
     if (current->scope_depth > 0)
         return 0;
 
     return identifier_constant(&parser.previous);
 }
 
-void Compiler::define_variable(uint8_t global)
+void Compiler::define_global_variable(uint8_t global)
 {
     if (current->scope_depth > 0)
     {
@@ -472,13 +472,12 @@ void Compiler::mark_initialized()
     current->locals[current->locals.size() - 1].depth = current->scope_depth;
 }
 
-void Compiler::declare_variable()
+void Compiler::declare_local_variable()
 {
     if (current->scope_depth == 0)
         return;
 
     Token *name = &parser.previous;
-
     for (int i = current->locals.size() - 1; i >= 0; i--)
     {
         Local *local = &current->locals[i];

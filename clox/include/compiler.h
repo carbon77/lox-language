@@ -112,8 +112,8 @@ private:
     uint8_t resolve_local(Locals *locals, Token *name);
     uint8_t parse_variable(const std::string &error_message);
     void mark_initialized();
-    void define_variable(uint8_t global);
-    void declare_variable();
+    void define_global_variable(uint8_t global);
+    void declare_local_variable();
     uint8_t identifier_constant(Token *name);
 
     ParseRule *get_rule(TokenType type)
