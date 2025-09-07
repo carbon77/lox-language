@@ -392,7 +392,7 @@ void Compiler::variable(bool can_assign)
 void Compiler::named_variable(Token name, bool can_assign)
 {
     OpCode getOp, setOp;
-    uint8_t arg = resolve_local(current, &name);
+    int arg = resolve_local(current, &name);
     if (arg != -1)
     {
         getOp = OpCode::OP_GET_LOCAL;
@@ -408,11 +408,11 @@ void Compiler::named_variable(Token name, bool can_assign)
     if (can_assign && match(TokenType::EQUAL))
     {
         expression();
-        emit_bytes({static_cast<uint8_t>(setOp), arg});
+        emit_bytes({static_cast<uint8_t>(setOp), static_cast<uint8_t>(arg)});
     }
     else
     {
-        emit_bytes({static_cast<uint8_t>(getOp), arg});
+        emit_bytes({static_cast<uint8_t>(getOp), static_cast<uint8_t>(arg)});
     }
 }
 
@@ -428,7 +428,7 @@ void Compiler::add_local(Token name)
     current->locals.push_back(local);
 }
 
-uint8_t Compiler::resolve_local(Locals *locals, Token *name)
+int Compiler::resolve_local(Locals *locals, Token *name)
 {
     for (int i = locals->locals.size() - 1; i >= 0; i--)
     {

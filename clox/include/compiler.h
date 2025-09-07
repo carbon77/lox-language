@@ -109,7 +109,7 @@ private:
     void named_variable(Token name, bool can_assign);
 
     void add_local(Token name);
-    uint8_t resolve_local(Locals *locals, Token *name);
+    int resolve_local(Locals *locals, Token *name);
     uint8_t parse_variable(const std::string &error_message);
     void mark_initialized();
     void define_global_variable(uint8_t global);
