@@ -67,7 +67,7 @@ private:
     Scanner scanner;
     Chunk *compiling_chunk;
     bool can_assign;
-    Locals *current;
+    Locals current;
 
     void consume(TokenType token, std::string message);
     void advance();

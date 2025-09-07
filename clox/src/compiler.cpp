@@ -10,10 +10,11 @@ static const int MAX_LOCAL_COUNT = UINT8_MAX + 1;
 Compiler::Compiler(std::string source, Chunk *chunk)
     : scanner(source),
       parser(),
-      compiling_chunk(chunk)
+      compiling_chunk(chunk),
+      current()
 {
-    current->locals.reserve(MAX_LOCAL_COUNT);
-    current->scope_depth = 0;
+    current.locals.reserve(MAX_LOCAL_COUNT);
+    current.scope_depth = 0;
 }
 
 void Compiler::free()
@@ -306,17 +307,17 @@ void Compiler::block()
 
 void Compiler::begin_scope()
 {
-    current->scope_depth++;
+    current.scope_depth++;
 }
 
 void Compiler::end_scope()
 {
-    current->scope_depth--;
+    current.scope_depth--;
 
-    while (current->locals.size() > 0 && current->locals[current->locals.size() - 1].depth > current->scope_depth)
+    while (current.locals.size() > 0 && current.locals[current.locals.size() - 1].depth > current.scope_depth)
     {
         emit_byte(OpCode::OP_POP);
-        current->locals.pop_back();
+        current.locals.pop_back();
     }
 }
 
@@ -392,7 +393,7 @@ void Compiler::variable(bool can_assign)
 void Compiler::named_variable(Token name, bool can_assign)
 {
     OpCode getOp, setOp;
-    int arg = resolve_local(current, &name);
+    int arg = resolve_local(&current, &name);
     if (arg != -1)
     {
         getOp = OpCode::OP_GET_LOCAL;
@@ -418,14 +419,14 @@ void Compiler::named_variable(Token name, bool can_assign)
 
 void Compiler::add_local(Token name)
 {
-    if (current->locals.size() == MAX_LOCAL_COUNT)
+    if (current.locals.size() == MAX_LOCAL_COUNT)
     {
         error("Too many local variables in function.");
         return;
     }
 
     Local local = {name, -1};
-    current->locals.push_back(local);
+    current.locals.push_back(local);
 }
 
 int Compiler::resolve_local(Locals *locals, Token *name)
@@ -450,7 +451,7 @@ uint8_t Compiler::parse_variable(const std::string &error_message)
     consume(TokenType::IDENTIFIER, error_message);
 
     declare_local_variable();
-    if (current->scope_depth > 0)
+    if (current.scope_depth > 0)
         return 0;
 
     return identifier_constant(&parser.previous);
@@ -458,7 +459,7 @@ uint8_t Compiler::parse_variable(const std::string &error_message)
 
 void Compiler::define_global_variable(uint8_t global)
 {
-    if (current->scope_depth > 0)
+    if (current.scope_depth > 0)
     {
         mark_initialized();
         return;
@@ -469,19 +470,19 @@ void Compiler::define_global_variable(uint8_t global)
 
 void Compiler::mark_initialized()
 {
-    current->locals[current->locals.size() - 1].depth = current->scope_depth;
+    current.locals[current.locals.size() - 1].depth = current.scope_depth;
 }
 
 void Compiler::declare_local_variable()
 {
-    if (current->scope_depth == 0)
+    if (current.scope_depth == 0)
         return;
 
     Token *name = &parser.previous;
-    for (int i = current->locals.size() - 1; i >= 0; i--)
+    for (int i = current.locals.size() - 1; i >= 0; i--)
     {
-        Local *local = &current->locals[i];
-        if (local->depth != -1 && local->depth < current->scope_depth)
+        Local *local = &current.locals[i];
+        if (local->depth != -1 && local->depth < current.scope_depth)
         {
             break;
         }
