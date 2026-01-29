@@ -1,3 +1,4 @@
-if (5 + true == "1hoe") {
-  print a
-}
+var a = 3;
+a = 2;
+var b = 3 + a * 2;
+print a + b;
