@@ -20,6 +20,7 @@ typedef enum {
   OP_LESS,
   OP_RETURN,
   OP_PRINT,
+  OP_POP,
 } OpCode;
 
 typedef struct {
