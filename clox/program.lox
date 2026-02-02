@@ -1,8 +1,7 @@
 fun myFunc(a, b) {
-    fun p() {}
-    print p;
     var c = a + b;
-    print c;
+    return c;
 }
 
-print myFunc;
+var a = 3;
+print myFunc(a * 2, 10 - 4);
