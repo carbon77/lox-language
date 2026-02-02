@@ -1,5 +1,8 @@
-var a = 4;
+fun myFunc(a, b) {
+    fun p() {}
+    print p;
+    var c = a + b;
+    print c;
+}
 
-if (true) {
-    print a;
-    }
+print myFunc;
