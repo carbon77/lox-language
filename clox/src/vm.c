@@ -12,6 +12,8 @@
 #include "value.h"
 #include "vm.h"
 
+#include <time.h>
+
 VM vm;
 
 static void resetStack()
@@ -50,6 +52,50 @@ static void runtimeError(const char* format, ...)
     resetStack();
 }
 
+static Value clockNative(int argCount, Value* args)
+{
+    if (argCount > 0)
+    {
+        runtimeError("Expected 0 arguments but got %d.", argCount);
+    }
+    return NUMBER_VAL((double) clock() / CLOCKS_PER_SEC);
+}
+
+static Value lenNative(int argCount, Value* args)
+{
+    if (argCount != 1)
+    {
+        runtimeError("Expected 1 arguments but got %d.", argCount);
+    }
+
+    Value arg = args[0];
+    switch (arg.type)
+    {
+    case VAL_OBJ:
+        {
+            Obj* object = AS_OBJ(arg);
+            if (object->type == OBJ_STRING)
+            {
+                ObjString* string = AS_STRING(arg);
+                return NUMBER_VAL((double) string->len);
+            }
+        }
+    default:
+        break;
+    }
+    runtimeError("'len' can accept only string argument");
+}
+
+
+static void defineNative(const char* name, NativeFn function)
+{
+    push(OBJ_VAL(copyString(name, (int)strlen(name))));
+    push(OBJ_VAL(newNative(function)));
+    tableSet(&vm.globals, AS_STRING(vm.stack[0]), vm.stack[1]);
+    pop();
+    pop();
+}
+
 static Value peek(int distance) { return vm.stackTop[-1 - distance]; }
 
 static bool call(ObjFunction* function, int argCount)
@@ -81,6 +127,14 @@ static bool callValue(Value callee, int argCount)
         {
         case OBJ_FUNCTION:
             return call(AS_FUNCTION(callee), argCount);
+        case OBJ_NATIVE:
+            {
+                NativeFn native = AS_NATIVE(callee);
+                Value result = native(argCount, vm.stackTop - argCount);
+                vm.stackTop -= argCount + 1;
+                push(result);
+                return true;
+            }
         default:
             break;
         }
@@ -323,6 +377,9 @@ void initVM()
     vm.objects = NULL;
     initTable(&vm.strings);
     initTable(&vm.globals);
+
+    defineNative("clock", clockNative);
+    defineNative("len", lenNative);
 }
 
 void freeVM()

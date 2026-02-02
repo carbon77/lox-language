@@ -1,7 +1,6 @@
-fun myFunc(a, b) {
-    var c = a + b;
-    return c;
-}
+var start = clock();
 
-var a = 3;
-print myFunc(a * 2, 10 - 4);
+var name = "Igor";
+print len(name) * 1000;
+
+print clock() - start;
