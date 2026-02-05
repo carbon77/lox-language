@@ -1,9 +1,30 @@
-fun outer() {
-    var x = "outside";
-    fun inner() {
-        print x;
+var globalX;
+var globalY;
+
+fun vector(x, y) {
+    fun getX() { print x; }
+    globalX = getX;
+
+    fun getY() { print y; }
+    globalY = getY;
+
+    fun set(key, value) {
+        if (key == "x") {
+            x = value;
+        } else {
+            y = value;
+        }
     }
-    inner();
+    return set;
 }
 
-outer();
+var set = vector(4, 1);
+
+globalX();
+globalY();
+
+set("x", 4);
+set("y", 90);
+
+globalX();
+globalY();
