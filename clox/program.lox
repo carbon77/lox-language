@@ -1,6 +1,4 @@
-var start = clock();
-
-var name = "Igor";
-print len(name) * 1000;
-
-print clock() - start;
+var n = 100;
+for (var i = 0; i < n;) {
+    print i;
+}

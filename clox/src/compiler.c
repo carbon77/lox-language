@@ -770,9 +770,6 @@ static void forStatement()
         emitByte(OP_POP); // Condition
     }
 
-    consume(TOKEN_SEMICOLON, "Expect ';'.");
-    consume(TOKEN_RIGHT_PAREN, "Expect ')' after clauses.");
-
     if (!match(TOKEN_RIGHT_PAREN))
     {
         int bodyJump = emitJump(OP_JUMP);
