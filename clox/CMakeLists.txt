@@ -19,4 +19,4 @@ configure_file(program.lox src/program.lox COPYONLY)
 
 include_directories(src)
 
-add_executable(CLox ${SOURCES})
+add_executable(clox ${SOURCES})
